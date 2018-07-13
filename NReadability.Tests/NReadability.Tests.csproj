@@ -1,0 +1,206 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="SampleInput\SampleInput_01.html" />
+    <None Remove="SampleInput\SampleInput_02.html" />
+    <None Remove="SampleInput\SampleInput_03.html" />
+    <None Remove="SampleInput\SampleInput_04.html" />
+    <None Remove="SampleInput\SampleInput_05.html" />
+    <None Remove="SampleInput\SampleInput_06.html" />
+    <None Remove="SampleInput\SampleInput_07.html" />
+    <None Remove="SampleInput\SampleInput_08.html" />
+    <None Remove="SampleInput\SampleInput_09.html" />
+    <None Remove="SampleInput\SampleInput_10.html" />
+    <None Remove="SampleInput\SampleInput_11.html" />
+    <None Remove="SampleInput\SampleInput_12.html" />
+    <None Remove="SampleInput\SampleInput_13.html" />
+    <None Remove="SampleInput\SampleInput_14.html" />
+    <None Remove="SampleInput\SampleInput_15.html" />
+    <None Remove="SampleInput\SampleInput_16.html" />
+    <None Remove="SampleWebInput\SampleInput_01_1.html" />
+    <None Remove="SampleWebInput\SampleInput_01_2.html" />
+    <None Remove="SampleWebInput\SampleInput_02_1.html" />
+    <None Remove="SampleWebInput\SampleInput_02_2.html" />
+    <None Remove="SampleWebInput\SampleInput_02_3.html" />
+    <None Remove="SampleWebInput\SampleInput_03_1.html" />
+    <None Remove="SampleWebInput\SampleInput_03_2.html" />
+    <None Remove="SampleWebInput\SampleInput_03_3.html" />
+    <None Remove="SampleWebInput\SampleInput_04_1.html" />
+    <None Remove="SampleWebInput\SampleInput_04_2.html" />
+    <None Remove="SampleWebInput\SampleInput_05_1.html" />
+    <None Remove="SampleWebInput\SampleInput_05_2.html" />
+    <None Remove="SampleWebInput\SampleInput_05_3.html" />
+    <None Remove="SampleWebInput\SampleInput_05_4.html" />
+    <None Remove="SampleWebInput\SampleInput_05_5.html" />
+    <None Remove="SampleWebInput\SampleInput_06_1.html" />
+    <None Remove="SampleWebInput\SampleInput_06_2.html" />
+    <None Remove="SampleWebInput\SampleInput_07_1.html" />
+    <None Remove="SampleWebInput\SampleInput_07_2.html" />
+    <None Remove="SampleWebInput\SampleInput_08_1.html" />
+    <None Remove="SampleWebInput\SampleInput_08_2.html" />
+    <None Remove="SampleWebInput\SampleInput_09_1.html" />
+    <None Remove="SampleWebInput\SampleInput_09_2.html" />
+    <None Remove="SampleWebInput\SampleInput_10_1.html" />
+    <None Remove="SampleWebInput\SampleInput_10_2.html" />
+    <None Remove="SampleWebInput\SampleInput_10_3.html" />
+    <None Remove="SampleWebInput\SampleInput_11_1.html" />
+    <None Remove="SampleWebInput\SampleInput_11_2.html" />
+    <None Remove="SampleWebInput\SampleInput_11_3.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="SampleInput\SampleInput_01.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_02.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_03.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_04.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_05.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_06.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_07.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_08.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_09.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_10.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_11.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_12.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_13.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_14.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_15.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleInput\SampleInput_16.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_01_1.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_01_2.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_02_1.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_02_2.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_02_3.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_03_1.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_03_2.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_03_3.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_04_1.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_04_2.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_05_1.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_05_2.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_05_3.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_05_4.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_05_5.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_06_1.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_06_2.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_07_1.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_07_2.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_08_1.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_08_2.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_09_1.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_09_2.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_10_1.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_10_2.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_10_3.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_11_1.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_11_2.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SampleWebInput\SampleInput_11_3.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="NUnit" Version="3.9.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NReadabilityCore\NReadabilityCore.csproj" />
+    <ProjectReference Include="..\SgmlReaderCore\SgmlReaderCore.csproj" />
+  </ItemGroup>
+
+</Project>
