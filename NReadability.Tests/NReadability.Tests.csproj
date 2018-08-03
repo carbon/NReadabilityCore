@@ -200,7 +200,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NReadabilityCore\NReadabilityCore.csproj" />
-    <ProjectReference Include="..\SgmlReaderCore\SgmlReaderCore.csproj" />
   </ItemGroup>
 
 </Project>

@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SgmlReaderCore\SgmlReaderCore.csproj" />
+    <ProjectReference Include="..\SgmlReader.NetCore\SgmlReader.NetCore.csproj" />
   </ItemGroup>
 
 </Project>
