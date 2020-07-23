@@ -28,8 +28,6 @@ namespace NReadability
 {
     public static class DomExtensions
     {
-        #region XDocument extensions
-
         public static XElement GetBody(this XDocument document)
         {
             if (document == null)
@@ -96,10 +94,6 @@ namespace NReadability
                where idAttribute != null && idAttribute.Value == id
                select element).SingleOrDefault();
         }
-
-        #endregion
-
-        #region XElement extensions
 
         public static string GetId(this XElement element)
         {
@@ -262,10 +256,6 @@ namespace NReadability
             }
         }
 
-        #endregion
-
-        #region XContainer extensions
-
         public static IEnumerable<XElement> GetElementsByTagName(this XContainer container, string tagName)
         {
             if (container == null)
@@ -297,7 +287,5 @@ namespace NReadability
             return container.Elements()
               .Where(e => e.Name != null && tagName.Equals(e.Name.LocalName, StringComparison.OrdinalIgnoreCase));
         }
-
-        #endregion
     }
 }

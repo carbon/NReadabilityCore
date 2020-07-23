@@ -1,7 +1,9 @@
-﻿namespace NReadability
+﻿using System.Threading.Tasks;
+
+namespace NReadability
 {
     public interface IUrlFetcher
     {
-        string Fetch(string url);
+        Task<string> FetchAsync(string url);
     }
 }

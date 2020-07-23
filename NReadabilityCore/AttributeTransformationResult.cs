@@ -1,6 +1,6 @@
 ﻿namespace NReadability
 {
-    public class AttributeTransformationResult
+    public sealed class AttributeTransformationResult
     {
         /// <summary>
         /// Result of the transformation.

@@ -2,7 +2,7 @@
 
 namespace NReadability
 {
-    public class AttributeTransformationInput
+    public sealed class AttributeTransformationInput
     {
         public string AttributeValue { get; set; }
 

@@ -92,21 +92,20 @@ namespace NReadability
 
         private static XDocument LoadDocument(string htmlContent)
         {
-            using (var sgmlReader = new SgmlReader())
+            using var sgmlReader = new SgmlReader
             {
-                sgmlReader.CaseFolding = CaseFolding.ToLower;
-                sgmlReader.DocType = "HTML";
-                sgmlReader.WhitespaceHandling = WhitespaceHandling.None;
+                CaseFolding = CaseFolding.ToLower,
+                DocType = "HTML",
+                WhitespaceHandling = WhitespaceHandling.None
+            };
 
-                using (var sr = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(htmlContent))))
-                {
-                    sgmlReader.InputStream = sr;
+            using var sr = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(htmlContent)));
 
-                    var document = XDocument.Load(sgmlReader);
+            sgmlReader.InputStream = sr;
 
-                    return document;
-                }
-            }
+            var document = XDocument.Load(sgmlReader);
+
+            return document;
         }
 
         #endregion

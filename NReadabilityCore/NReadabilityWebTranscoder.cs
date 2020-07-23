@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace NReadability
@@ -29,7 +30,7 @@ namespace NReadability
     /// <summary>
     /// A class that extracts main content from a url.
     /// </summary>
-    public class NReadabilityWebTranscoder
+    public partial class NReadabilityWebTranscoder
     {
         private const int _MaxPages = 30;
         private const string _PageIdPrefix = "readability-page-";
@@ -102,30 +103,21 @@ namespace NReadability
         /// </summary>
         /// <param name="webTranscodingInput">An object containing input parameters, i.a. URL of the page to be processed.</param>
         /// <returns>An object containing transcoding result, i.a. extracted content and title.</returns>
-        public WebTranscodingResult Transcode(WebTranscodingInput webTranscodingInput)
+        public async Task<WebTranscodingResult> TranscodeAsync(WebTranscodingInput webTranscodingInput)
         {
             if (webTranscodingInput == null)
             {
-                throw new ArgumentNullException("webTranscodingInput");
+                throw new ArgumentNullException(nameof(webTranscodingInput));
             }
 
-            bool contentExtracted;
-            string extractedTitle;
+            var transcodeResult =await DoTranscodeAsync(webTranscodingInput.Url, webTranscodingInput.DomSerializationParams).ConfigureAwait(false);
 
-            string extractedContent =
-              DoTranscode(
-                webTranscodingInput.Url,
-                webTranscodingInput.DomSerializationParams,
-                out contentExtracted,
-                out extractedTitle);
+            bool titleExtracted = !string.IsNullOrEmpty(transcodeResult.Title);
 
-            bool titleExtracted = !string.IsNullOrEmpty(extractedTitle);
-
-            return
-              new WebTranscodingResult(contentExtracted, titleExtracted)
+            return new WebTranscodingResult(transcodeResult.MainContentExtracted, titleExtracted)
               {
-                  ExtractedContent = extractedContent,
-                  ExtractedTitle = extractedTitle,
+                  ExtractedContent = transcodeResult.Content,
+                  ExtractedTitle = transcodeResult.Title
               };
         }
 
@@ -137,11 +129,9 @@ namespace NReadability
         /// <param name="mainContentExtracted">Determines whether the content has been extracted (if the article is not empty).</param>    
         /// <returns>HTML markup containing extracted article content.</returns>
         [Obsolete("Use TranscodingResult Transcode(TranscodingInput) method.")]
-        public string Transcode(string url, DomSerializationParams domSerializationParams, out bool mainContentExtracted)
+        public Task<TranscodeResult> TranscodeAsync(string url, DomSerializationParams domSerializationParams)
         {
-            string extractedTitle;
-
-            return DoTranscode(url, domSerializationParams, out mainContentExtracted, out extractedTitle);
+            return DoTranscodeAsync(url, domSerializationParams);
         }
 
         /// <summary>
@@ -151,43 +141,45 @@ namespace NReadability
         /// <param name="mainContentExtracted">Determines whether the content has been extracted (if the article is not empty).</param>    
         /// <returns>HTML markup containing extracted article content.</returns>
         [Obsolete("Use TranscodingResult Transcode(TranscodingInput) method.")]
-        public string Transcode(string url, out bool mainContentExtracted)
+        public Task<TranscodeResult> TranscodeAsync(string url)
         {
-            return Transcode(url, DomSerializationParams.CreateDefault(), out mainContentExtracted);
+            return DoTranscodeAsync(url, DomSerializationParams.CreateDefault());
         }
 
-        #endregion
+#endregion
+#region Private helper methods
 
-        #region Private helper methods
-
-        private string DoTranscode(string url, DomSerializationParams domSerializationParams, out bool mainContentExtracted, out string extractedTitle)
+        private async Task<TranscodeResult> DoTranscodeAsync(string url, DomSerializationParams domSerializationParams)
         {
+            bool mainContentExtracted;
+            string extractedTitle;
+
+
             _curPageNum = 1;
             _parsedPages = new List<string>();
 
             /* Make sure this document is added to the list of parsed pages first, so we don't double up on the first page */
             _parsedPages.Add(Regex.Replace(url, @"\/$", ""));
 
-            string htmlContent = _urlFetcher.Fetch(url);
+            string htmlContent = await _urlFetcher.FetchAsync(url).ConfigureAwait(false);
 
             /* If we can't fetch the page, then exit. */
             if (string.IsNullOrEmpty(htmlContent))
             {
-                mainContentExtracted = false;
-                extractedTitle = null;
-
-                return null;
+                return new TranscodeResult();
             }
 
             /* Attempt to transcode the page */
             XDocument document;
-            string nextPage;
 
-            document = _transcoder.TranscodeToXml(htmlContent, url, out mainContentExtracted, out extractedTitle, out nextPage);
+            document = _transcoder.TranscodeToXml(htmlContent, url, 
+                out mainContentExtracted, 
+                out extractedTitle, 
+                out string nextPage);
 
             if (nextPage != null)
             {
-                AppendNextPage(document, nextPage);
+                await AppendNextPageAsync(document, nextPage).ConfigureAwait(false);
             }
 
             /* If there are multiple pages, rename the first content div */
@@ -199,7 +191,15 @@ namespace NReadability
                 articleContainer.SetClass("page");
             }
 
-            return _sgmlDomSerializer.SerializeDocument(document, domSerializationParams);
+            var content = _sgmlDomSerializer.SerializeDocument(document, domSerializationParams);
+
+            return new TranscodeResult
+            {
+
+                Content = content,
+                 MainContentExtracted = mainContentExtracted,
+                 Title =extractedTitle
+            };
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace NReadability
         /// </summary>
         /// <param name="document">Compiled document</param>
         /// <param name="url">Url of current page</param>
-        private void AppendNextPage(XDocument document, string url)
+        private async Task AppendNextPageAsync(XDocument document, string url)
         {
             _curPageNum++;
 
@@ -220,17 +220,20 @@ namespace NReadability
                 return;
             }
 
-            string nextContent = _urlFetcher.Fetch(url);
+            string nextContent = await _urlFetcher.FetchAsync(url).ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(nextContent))
             {
                 return;
             }
 
-            bool mainContentExtracted;
-            string extractedTitle;
-            string nextPageLink;
-            var nextDocument = _transcoder.TranscodeToXml(nextContent, url, out mainContentExtracted, out extractedTitle, out nextPageLink);
+            var nextDocument = _transcoder.TranscodeToXml(
+                nextContent, 
+                url, 
+                out bool mainContentExtracted, 
+                out string extractedTitle, 
+                out string nextPageLink);
+
             var nextInner = nextDocument.GetElementById("readInner");
             var header = nextInner.Element("h1");
 
@@ -282,7 +285,7 @@ namespace NReadability
             /* Only continue if we haven't already seen the next page page */
             if (!string.IsNullOrEmpty(nextPageLink) && !_parsedPages.Contains(nextPageLink))
             {
-                AppendNextPage(document, nextPageLink);
+                await AppendNextPageAsync(document, nextPageLink).ConfigureAwait(false);
             }
         }
 

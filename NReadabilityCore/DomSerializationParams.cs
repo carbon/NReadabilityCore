@@ -2,10 +2,8 @@
 
 namespace NReadability
 {
-    public class DomSerializationParams
+    public sealed class DomSerializationParams
     {
-        #region Factory methods
-
         /// <summary>
         /// Creates an instance of DomSerializationParams with parameters set to their defaults.
         /// </summary>
@@ -13,10 +11,6 @@ namespace NReadability
         {
             return new DomSerializationParams();
         }
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// Determines whether the output will be formatted.
@@ -42,7 +36,5 @@ namespace NReadability
         /// Determines whether a meta tag with a generator specification will be added/replaced in the output.
         /// </summary>
         public bool DontIncludeGeneratorMetaElement { get; set; }
-
-        #endregion
     }
 }

@@ -56,7 +56,7 @@ namespace Sgml
         private object[] m_items;
         private int m_size;
         private int m_count;
-        private int m_growth;
+        private readonly int m_growth;
 
         /// <summary>
         /// Initialises a new instance of the HWStack class.
@@ -85,14 +85,7 @@ namespace Sgml
         /// <summary>
         /// The size (capacity) of the stack.
         /// </summary>
-        [SuppressMessage("Microsoft.Performance", "CA1811", Justification = "Kept for potential future usage.")]
-        public int Size
-        {
-            get
-            {
-                return this.m_size;
-            }
-        }
+        public int Size => m_size;
 
         /// <summary>
         /// Returns the item at the requested index or null if index is out of bounds
@@ -201,13 +194,7 @@ namespace Sgml
                         }*/
         }
 
-        public bool IsDefault
-        {
-            get
-            {
-                return (this.m_literalValue == null);
-            }
-        }
+        public bool IsDefault => m_literalValue == null;
     }
 
     /// <summary>
@@ -215,7 +202,7 @@ namespace Sgml
     /// for validation purposes, and these Node objects are reused to reduce object allocation,
     /// hence the reset method.  
     /// </summary>
-    internal class Node
+    internal sealed class Node
     {
         internal XmlNodeType NodeType;
         internal string Value;
@@ -226,7 +213,7 @@ namespace Sgml
         internal ElementDecl DtdType; // the DTD type found via validation
         internal State CurrentState;
         internal bool Simulated; // tag was injected into result stream.
-        HWStack attributes = new HWStack(10);
+        private readonly HWStack attributes = new HWStack(10);
 
         /// <summary>
         /// Attribute objects are reused during parsing to reduce memory allocations, 
@@ -262,7 +249,7 @@ namespace Sgml
             if (a == null)
             {
                 a = new Attribute();
-                this.attributes[this.attributes.Count - 1] = a;
+                this.attributes[attributes.Count - 1] = a;
             }
             a.Reset(name, value, quotechar);
             return a;
@@ -390,7 +377,7 @@ namespace Sgml
         private CaseFolding m_folding = CaseFolding.None;
         private bool m_stripDocType = true;
         //private string m_startTag;
-        private Dictionary<string, string> unknownNamespaces = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> unknownNamespaces = new Dictionary<string, string>();
 
         /// <summary>
         /// Initialises a new instance of the SgmlReader class.
@@ -468,18 +455,12 @@ namespace Sgml
 
             if (this.m_dtd != null && this.m_dtd.Name != null)
             {
-                switch (this.CaseFolding)
+                this.m_rootElementName = this.CaseFolding switch
                 {
-                    case CaseFolding.ToUpper:
-                        this.m_rootElementName = this.m_dtd.Name.ToUpperInvariant();
-                        break;
-                    case CaseFolding.ToLower:
-                        this.m_rootElementName = this.m_dtd.Name.ToLowerInvariant();
-                        break;
-                    default:
-                        this.m_rootElementName = this.m_dtd.Name;
-                        break;
-                }
+                    CaseFolding.ToUpper => this.m_dtd.Name.ToUpperInvariant(),
+                    CaseFolding.ToLower => this.m_dtd.Name.ToLowerInvariant(),
+                    _ => this.m_dtd.Name,
+                };
 
                 this.m_isHtml = StringUtilities.EqualsIgnoreCase(this.m_dtd.Name, "html");
             }
@@ -748,11 +729,11 @@ namespace Sgml
 
         private Node Push(string name, XmlNodeType nt, string value)
         {
-            Node result = (Node)this.m_stack.Push();
+            Node result = (Node)m_stack.Push();
             if (result == null)
             {
                 result = new Node();
-                this.m_stack[this.m_stack.Count - 1] = result;
+                m_stack[^1] = result;
             }
 
             result.Reset(name, nt, value);
@@ -765,8 +746,8 @@ namespace Sgml
             int top = this.m_stack.Count - 1;
             if (top > 0)
             {
-                Node n = (Node)this.m_stack[top - 1];
-                this.m_stack[top - 1] = this.m_stack[top];
+                Node n = (Node)m_stack[top - 1];
+                this.m_stack[top - 1] = m_stack[top];
                 this.m_stack[top] = n;
             }
         }
@@ -1846,7 +1827,7 @@ namespace Sgml
 
             // Make sure there's a matching start tag for it.                        
             bool caseInsensitive = (this.m_folding == CaseFolding.None);
-            this.m_node = (Node)this.m_stack[this.m_stack.Count - 1];
+            this.m_node = (Node)this.m_stack[m_stack.Count - 1];
             for (int i = this.m_stack.Count - 1; i > 0; i--)
             {
                 Node n = (Node)this.m_stack[i];
@@ -1902,7 +1883,7 @@ namespace Sgml
                 i = value.IndexOf("--");
             }
 
-            if (value.Length > 0 && value[value.Length - 1] == '-')
+            if (value.Length > 0 && value[^1] == '-')
             {
                 value += " "; // '-' cannot be last character
             }
@@ -1914,8 +1895,8 @@ namespace Sgml
         private const string cdataterm = "\t\r\n[]<>";
         private bool ParseConditionalBlock()
         {
-            char ch = m_current.ReadChar(); // skip '['
-            ch = m_current.SkipWhitespace();
+            _ = m_current.ReadChar(); // skip '['
+            char ch = m_current.SkipWhitespace();
             string name = m_current.ScanToken(m_sb, cdataterm, false);
             if (name.StartsWith("if "))
             {
@@ -1949,10 +1930,10 @@ namespace Sgml
         private const string dtterm = " \t\r\n>";
         private void ParseDocType()
         {
-            char ch = this.m_current.SkipWhitespace();
+            _ = this.m_current.SkipWhitespace();
             string name = this.ScanName(SgmlReader.dtterm);
             Push(name, XmlNodeType.DocumentType, null);
-            ch = this.m_current.SkipWhitespace();
+            char ch = m_current.SkipWhitespace();
             if (ch != '>')
             {
                 string subset = "";
@@ -2442,9 +2423,11 @@ namespace Sgml
         /// </returns>
         public override string ReadInnerXml()
         {
-            StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
-            XmlTextWriter xw = new XmlTextWriter(sw);
-            xw.Formatting = Formatting.Indented;
+            var sw = new StringWriter(CultureInfo.InvariantCulture);
+            var xw = new XmlTextWriter(sw)
+            {
+                Formatting = Formatting.Indented
+            };
             switch (this.NodeType)
             {
                 case XmlNodeType.Element:
@@ -2475,9 +2458,11 @@ namespace Sgml
         /// </returns>
         public override string ReadOuterXml()
         {
-            StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
-            XmlTextWriter xw = new XmlTextWriter(sw);
-            xw.Formatting = Formatting.Indented;
+            var sw = new StringWriter(CultureInfo.InvariantCulture);
+            var xw = new XmlTextWriter(sw)
+            {
+                Formatting = Formatting.Indented
+            };
             xw.WriteNode(this, true);
             xw.Close();
             return sw.ToString();

@@ -1,6 +1,6 @@
 namespace NReadability
 {
-    public class WebTranscodingResult
+    public sealed class WebTranscodingResult
     {
         public WebTranscodingResult(bool contentExtracted, bool titleExtracted)
         {

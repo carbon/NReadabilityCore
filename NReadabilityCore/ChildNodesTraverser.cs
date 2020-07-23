@@ -27,21 +27,10 @@ namespace NReadability
     {
         private readonly Action<XNode> _childNodeVisitor;
 
-        #region Constructor(s)
-
         public ChildNodesTraverser(Action<XNode> childNodeVisitor)
         {
-            if (childNodeVisitor == null)
-            {
-                throw new ArgumentNullException("childNodeVisitor");
-            }
-
-            _childNodeVisitor = childNodeVisitor;
+            _childNodeVisitor = childNodeVisitor ?? throw new ArgumentNullException("childNodeVisitor");
         }
-
-        #endregion
-
-        #region Public methods
 
         public void Traverse(XNode node)
         {
@@ -61,7 +50,5 @@ namespace NReadability
                 childNode = nextChildNode;
             }
         }
-
-        #endregion
     }
 }

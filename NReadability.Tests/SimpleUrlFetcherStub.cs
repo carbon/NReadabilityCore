@@ -1,24 +1,22 @@
 using System;
+using System.Threading.Tasks;
 
 namespace NReadability.Tests
 {
-  public class SimpleUrlFetcherStub : IUrlFetcher
-  {
-    private readonly string _contentToReturn;
-
-    public SimpleUrlFetcherStub(string contentToReturn)
+    public sealed class SimpleUrlFetcherStub : IUrlFetcher
     {
-      if (string.IsNullOrEmpty(contentToReturn))
-      {
-        throw new ArgumentException("Argument can't be null nor empty.", "contentToReturn");
-      }
+        private readonly string _contentToReturn;
 
-      _contentToReturn = contentToReturn;
-    }
+        public SimpleUrlFetcherStub(string contentToReturn)
+        {
+            if (string.IsNullOrEmpty(contentToReturn))
+            {
+                throw new ArgumentException("Argument can't be null nor empty.", "contentToReturn");
+            }
 
-    public string Fetch(string url)
-    {
-      return _contentToReturn;
+            _contentToReturn = contentToReturn;
+        }
+
+        public Task<string> FetchAsync(string url) => Task.FromResult(_contentToReturn);
     }
-  }
 }

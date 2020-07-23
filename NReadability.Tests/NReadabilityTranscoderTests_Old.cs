@@ -451,8 +451,7 @@ namespace NReadability.Tests
         {
             string sampleInputNumberStr = sampleInputNumber.ToString().PadLeft(2, '0');
             string content = File.ReadAllText(string.Format(@"SampleInput\SampleInput_{0}.html", sampleInputNumberStr));
-            bool mainContentExtracted;
-            string transcodedContent = _nReadabilityTranscoder.Transcode(content, out mainContentExtracted);
+            string transcodedContent = _nReadabilityTranscoder.Transcode(content, out bool mainContentExtracted);
 
             const string outputDir = "SampleOutput";
 
@@ -698,8 +697,7 @@ namespace NReadability.Tests
         {
             string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             string htmlContent = "<html><body>" + dummyParagraphs + "<p><a href=\"?hello\">link</a></p>" + dummyParagraphs + "</body></html>";
-            bool mainContentExtracted;
-            string transcodedContent = _nReadabilityTranscoder.Transcode(htmlContent, "http://wikipedia.org/wiki/baseArticle", out mainContentExtracted);
+            string transcodedContent = _nReadabilityTranscoder.Transcode(htmlContent, "http://wikipedia.org/wiki/baseArticle", out bool mainContentExtracted);
 
             Assert.IsTrue(mainContentExtracted);
             Assert.IsTrue(transcodedContent.Contains("href=\"http://wikipedia.org/wiki/baseArticle?hello\""));
@@ -713,9 +711,8 @@ namespace NReadability.Tests
         public void TestEmptyArticle()
         {
             const string htmlContent = "<html><body></body></html>";
-            bool mainContentExtracted;
 
-            _nReadabilityTranscoder.Transcode(htmlContent, "http://wikipedia.org/wiki/baseArticle", out mainContentExtracted);
+            _nReadabilityTranscoder.Transcode(htmlContent, "http://wikipedia.org/wiki/baseArticle", out bool mainContentExtracted);
 
             Assert.IsFalse(mainContentExtracted);
         }
@@ -725,8 +722,8 @@ namespace NReadability.Tests
         {
             string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             string htmlContent = "<html><body>" + dummyParagraphs + "</body></html>";
-            bool mainContentExtracted;
-            string transcodedContent = _nReadabilityTranscoder.Transcode(htmlContent, "http://wikipedia.org/wiki/baseArticle", out mainContentExtracted);
+            string transcodedContent = _nReadabilityTranscoder.Transcode(htmlContent,
+                "http://wikipedia.org/wiki/baseArticle", out bool mainContentExtracted);
 
             Assert.IsTrue(mainContentExtracted);
             Assert.IsTrue(transcodedContent.Contains("<meta name=\"HandheldFriendly\" content=\"true\" />"));
@@ -738,8 +735,7 @@ namespace NReadability.Tests
             const string metaViewportElementStr = "<meta name=\"viewport\" content=\"width=1000\" />";
             const string htmlContent = "<html><head>" + metaViewportElementStr + "</head><body><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p></body></html>";
 
-            bool mainContentExtracted;
-            string transcodedContent = _nReadabilityTranscoder.Transcode(htmlContent, "http://wikipedia.org/wiki/baseArticle", out mainContentExtracted);
+            string transcodedContent = _nReadabilityTranscoder.Transcode(htmlContent, "http://wikipedia.org/wiki/baseArticle", out bool mainContentExtracted);
 
             Assert.IsTrue(mainContentExtracted);
             Assert.IsFalse(transcodedContent.Contains(metaViewportElementStr));
@@ -748,8 +744,7 @@ namespace NReadability.Tests
         [Test]
         public void TestImageSourceTransformer()
         {
-            Func<AttributeTransformationInput, AttributeTransformationResult> imgSrcTransformer =
-              input =>
+            static AttributeTransformationResult imgSrcTransformer(AttributeTransformationInput input) =>
               new AttributeTransformationResult
               {
                   TransformedValue = string.Format("http://imageresizer.com/u={0}", input.AttributeValue),
@@ -757,7 +752,7 @@ namespace NReadability.Tests
               };
 
             string originalSrcValue = "http://example.com/some_image.jpg";
-            string expectedSrcValue = imgSrcTransformer.Invoke(new AttributeTransformationInput { AttributeValue = originalSrcValue, Element = null }).TransformedValue;
+            string expectedSrcValue = imgSrcTransformer(new AttributeTransformationInput { AttributeValue = originalSrcValue, Element = null }).TransformedValue;
 
             string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             string htmlContent = "<html><body>" + dummyParagraphs + "<p><img src=\"" + originalSrcValue + "\" /></p>" + dummyParagraphs + "</body></html>";
@@ -768,8 +763,7 @@ namespace NReadability.Tests
                   ImageSourceTranformer = imgSrcTransformer,
               };
 
-            bool mainContentExtracted;
-            string transcodedContent = nReadabilityTranscoder.Transcode(htmlContent, "http://immortal.pl/", out mainContentExtracted);
+            string transcodedContent = nReadabilityTranscoder.Transcode(htmlContent, "http://immortal.pl/", out bool mainContentExtracted);
 
             Assert.IsTrue(mainContentExtracted);
             Assert.IsTrue(transcodedContent.Contains("src=\"" + expectedSrcValue + "\""));
@@ -779,8 +773,7 @@ namespace NReadability.Tests
         [Test]
         public void TestAnchorHrefTransformer()
         {
-            Func<AttributeTransformationInput, AttributeTransformationResult> anchorHrefTransformer =
-              input =>
+            static AttributeTransformationResult anchorHrefTransformer(AttributeTransformationInput input) =>
               new AttributeTransformationResult
               {
                   TransformedValue = string.Format("http://redirector.com/u={0}", input.AttributeValue),
@@ -788,7 +781,7 @@ namespace NReadability.Tests
               };
 
             string originalHrefValue = "http://example.com/some_article.html";
-            string expectedHrefValue = anchorHrefTransformer.Invoke(new AttributeTransformationInput { AttributeValue = originalHrefValue, Element = null }).TransformedValue;
+            string expectedHrefValue = anchorHrefTransformer(new AttributeTransformationInput { AttributeValue = originalHrefValue, Element = null }).TransformedValue;
 
             string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             string htmlContent = "<html><body>" + dummyParagraphs + "<p><a href=\"" + originalHrefValue + "\">Some article</a></p>" + dummyParagraphs + "</body></html>";
@@ -799,8 +792,8 @@ namespace NReadability.Tests
                   AnchorHrefTranformer = anchorHrefTransformer,
               };
 
-            bool mainContentExtracted;
-            string transcodedContent = nReadabilityTranscoder.Transcode(htmlContent, "http://immortal.pl/", out mainContentExtracted);
+            string transcodedContent = nReadabilityTranscoder.Transcode(htmlContent, 
+                "http://immortal.pl/", out bool mainContentExtracted);
 
             Assert.IsTrue(mainContentExtracted);
             Assert.IsTrue(transcodedContent.Contains("href=\"" + expectedHrefValue + "\""));
@@ -810,10 +803,8 @@ namespace NReadability.Tests
         [Test]
         public void Output_contains_meta_generator_element()
         {
-            bool mainContentExtracted;
-
             string transcodedContent =
-              _nReadabilityTranscoder.Transcode("test", out mainContentExtracted);
+              _nReadabilityTranscoder.Transcode("test", out bool mainContentExtracted);
 
             Assert.IsTrue(transcodedContent.Contains("meta name=\"Generator\""));
         }
@@ -874,9 +865,7 @@ namespace NReadability.Tests
                     elementToSearch =>
                       elementToSearch.Trim().ToLower()
                         .Equals(
-                          element.Name != null
-                            ? element.Name.LocalName
-                            : null,
+                          element.Name?.LocalName,
                           StringComparison.OrdinalIgnoreCase)));
         }
 
@@ -884,8 +873,7 @@ namespace NReadability.Tests
         {
             string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             string htmlContent = "<html><body>" + dummyParagraphs + "<p><img src=\"" + srcAttribute + "\" /></p>" + dummyParagraphs + "</body></html>";
-            bool mainContentExtracted;
-            string transcodedContent = _nReadabilityTranscoder.Transcode(htmlContent, url, out mainContentExtracted);
+            string transcodedContent = _nReadabilityTranscoder.Transcode(htmlContent, url, out bool mainContentExtracted);
 
             Assert.IsTrue(
               transcodedContent.Contains("src=\"" + expectedImageUrl + "\""),

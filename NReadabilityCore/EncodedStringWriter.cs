@@ -24,23 +24,16 @@ using System.Text;
 
 namespace NReadability
 {
-    internal class EncodedStringWriter : StringWriter
+    internal sealed class EncodedStringWriter : StringWriter
     {
         private static readonly Encoding _DefaultEncoding = Encoding.UTF8;
 
         private readonly Encoding _encoding;
 
-        #region Constructor(s)
-
         public EncodedStringWriter(StringBuilder sb, Encoding encoding)
           : base(sb)
         {
-            if (encoding == null)
-            {
-                throw new ArgumentNullException("encoding");
-            }
-
-            _encoding = encoding;
+            _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         }
 
         public EncodedStringWriter(StringBuilder sb)
@@ -48,15 +41,6 @@ namespace NReadability
         {
         }
 
-        #endregion
-
-        #region Properties
-
-        public override Encoding Encoding
-        {
-            get { return _encoding; }
-        }
-
-        #endregion
+        public override Encoding Encoding => _encoding;
     }
 }

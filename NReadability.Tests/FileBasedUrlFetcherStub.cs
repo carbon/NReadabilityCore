@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace NReadability.Tests
 {
@@ -26,7 +27,7 @@ namespace NReadability.Tests
 
     #region IUrlFetcher members
 
-    public string Fetch(string url)
+    public async Task<string> FetchAsync(string url)
     {
       string sampleInputNumberStr = _sampleInputNumber.ToString().PadLeft(2, '0');
       int pageNo = Array.IndexOf(_urls, url) + 1;

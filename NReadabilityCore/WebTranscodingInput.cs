@@ -2,7 +2,7 @@ using System;
 
 namespace NReadability
 {
-    public class WebTranscodingInput
+    public sealed class WebTranscodingInput
     {
         private DomSerializationParams _domSerializationParams;
 
@@ -20,7 +20,7 @@ namespace NReadability
 
         public DomSerializationParams DomSerializationParams
         {
-            get { return _domSerializationParams ?? (_domSerializationParams = DomSerializationParams.CreateDefault()); }
+            get { return _domSerializationParams ??= DomSerializationParams.CreateDefault(); }
             set { _domSerializationParams = value; }
         }
     }

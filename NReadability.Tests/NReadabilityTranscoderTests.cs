@@ -458,9 +458,10 @@ namespace NReadability.Tests
             // arrange
             string sampleInputNumberStr = sampleInputNumber.ToString().PadLeft(2, '0');
             string content = File.ReadAllText(string.Format(@"SampleInput\SampleInput_{0}.html", sampleInputNumberStr));
-            var transcodingInput = new TranscodingInput(content);
-
-            transcodingInput.Url = GetSampleInputUrl(sampleInputNumber);
+            var transcodingInput = new TranscodingInput(content)
+            {
+                Url = GetSampleInputUrl(sampleInputNumber)
+            };
 
             // act
             TranscodingResult transcodingResult = _nReadabilityTranscoder.Transcode(transcodingInput);
@@ -835,8 +836,7 @@ namespace NReadability.Tests
         public void TestImageSourceTransformer()
         {
             // arrange
-            Func<AttributeTransformationInput, AttributeTransformationResult> imgSrcTransformer =
-              input =>
+            static AttributeTransformationResult imgSrcTransformer(AttributeTransformationInput input) =>
               new AttributeTransformationResult
               {
                   TransformedValue = string.Format("http://imageresizer.com/u={0}", input.AttributeValue),
@@ -844,7 +844,7 @@ namespace NReadability.Tests
               };
 
             string originalSrcValue = "http://example.com/some_image.jpg";
-            string expectedSrcValue = imgSrcTransformer.Invoke(new AttributeTransformationInput { AttributeValue = originalSrcValue, Element = null }).TransformedValue;
+            string expectedSrcValue = imgSrcTransformer(new AttributeTransformationInput { AttributeValue = originalSrcValue, Element = null }).TransformedValue;
 
             string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             string htmlContent = "<html><body>" + dummyParagraphs + "<p><img src=\"" + originalSrcValue + "\" /></p>" + dummyParagraphs + "</body></html>";
@@ -874,8 +874,7 @@ namespace NReadability.Tests
         public void TestAnchorHrefTransformer()
         {
             // arrange
-            Func<AttributeTransformationInput, AttributeTransformationResult> anchorHrefTransformer =
-              input =>
+            static AttributeTransformationResult anchorHrefTransformer(AttributeTransformationInput input) =>
               new AttributeTransformationResult
               {
                   TransformedValue = string.Format("http://redirector.com/u={0}", input.AttributeValue),
@@ -883,7 +882,7 @@ namespace NReadability.Tests
               };
 
             string originalHrefValue = "http://example.com/some_article.html";
-            string expectedHrefValue = anchorHrefTransformer.Invoke(new AttributeTransformationInput { AttributeValue = originalHrefValue, Element = null }).TransformedValue;
+            string expectedHrefValue = anchorHrefTransformer(new AttributeTransformationInput { AttributeValue = originalHrefValue, Element = null }).TransformedValue;
 
             string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             string htmlContent = "<html><body>" + dummyParagraphs + "<p><a href=\"" + originalHrefValue + "\">Some article</a></p>" + dummyParagraphs + "</body></html>";
@@ -1055,17 +1054,12 @@ namespace NReadability.Tests
 
         private static string GetSampleInputUrl(int sampleInputNumber)
         {
-            switch (sampleInputNumber)
+            return sampleInputNumber switch
             {
-                case 14:
-                    return "http://www.theverge.com/2012/5/25/3042640/samsung-galaxy-s-iii-review";
-
-                case 15:
-                    return "http://www.theverge.com/2012/6/21/3032067/casio-bluetooth-g-shock-watch-gb6900-review";
-
-                default:
-                    return null;
-            }
+                14 => "http://www.theverge.com/2012/5/25/3042640/samsung-galaxy-s-iii-review",
+                15 => "http://www.theverge.com/2012/6/21/3032067/casio-bluetooth-g-shock-watch-gb6900-review",
+                _ => null,
+            };
         }
 
         private void TestReplacingImageUrl(string srcAttribute, string url, string expectedImageUrl)

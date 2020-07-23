@@ -223,22 +223,19 @@ namespace NReadability
         /// <returns>An object containing transcoding result, i.a. extracted content and title.</returns>
         public TranscodingResult Transcode(TranscodingInput transcodingInput)
         {
-            if (transcodingInput == null)
+            if (transcodingInput is null)
             {
-                throw new ArgumentNullException("transcodingInput");
+                throw new ArgumentNullException(nameof(transcodingInput));
             }
 
-            bool contentExtracted;
-            string extractedTitle;
-            string nextPageUrl;
 
             XDocument transcodedXmlDocument =
               TranscodeToXml(
                 transcodingInput.HtmlContent,
                 transcodingInput.Url,
-                out contentExtracted,
-                out extractedTitle,
-                out nextPageUrl);
+                out bool contentExtracted,
+                out string extractedTitle,
+                out string nextPageUrl);
 
             string transcodedContent =
               _sgmlDomSerializer.SerializeDocument(
@@ -268,14 +265,12 @@ namespace NReadability
         [Obsolete("Use TranscodingResult Transcode(TranscodingInput) method.")]
         public string Transcode(string htmlContent, string url, DomSerializationParams domSerializationParams, out bool mainContentExtracted, out string nextPageUrl)
         {
-            string extractedTitle;
-
             XDocument document =
               TranscodeToXml(
                 htmlContent,
                 url,
                 out mainContentExtracted,
-                out extractedTitle,
+                out string extractedTitle,
                 out nextPageUrl);
 
             return _sgmlDomSerializer.SerializeDocument(document, domSerializationParams);
@@ -305,9 +300,9 @@ namespace NReadability
         [Obsolete("Use TranscodingResult Transcode(TranscodingInput) method.")]
         public string Transcode(string htmlContent, string url, out bool mainContentExtracted)
         {
-            string nextPageUrl;
-
-            return Transcode(htmlContent, url, DomSerializationParams.CreateDefault(), out mainContentExtracted, out nextPageUrl);
+            return Transcode(htmlContent, url, DomSerializationParams.CreateDefault(), 
+                out mainContentExtracted, 
+                out string nextPageUrl);
         }
 
         /// <summary>
@@ -319,9 +314,7 @@ namespace NReadability
         [Obsolete("Use TranscodingResult Transcode(TranscodingInput) method.")]
         public string Transcode(string htmlContent, out bool mainContentExtracted)
         {
-            string nextPageUrl;
-
-            return Transcode(htmlContent, null, out mainContentExtracted, out nextPageUrl);
+            return Transcode(htmlContent, null, out mainContentExtracted, out string nextPageUrl);
         }
 
         #endregion
@@ -427,9 +420,8 @@ namespace NReadability
                 }
 
                 /* If it's on a different domain, skip it. */
-                Uri linkHrefUri;
 
-                if (Uri.TryCreate(linkHref, UriKind.Absolute, out linkHrefUri) && linkHrefUri.Host != new Uri(articleBaseUrl).Host)
+                if (Uri.TryCreate(linkHref, UriKind.Absolute, out Uri linkHrefUri) && linkHrefUri.Host != new Uri(articleBaseUrl).Host)
                 {
                     continue;
                 }
@@ -571,8 +563,7 @@ namespace NReadability
                  * bias towards lower numbered pages. This is so that pages that might not have 'next'
                  * in their text can still get scored, and sorted properly by score.
                  */
-                int linkTextAsNumber;
-                bool isInt = int.TryParse(linkText, out linkTextAsNumber);
+                bool isInt = int.TryParse(linkText, out int linkTextAsNumber);
 
                 if (isInt)
                 {
@@ -618,9 +609,7 @@ namespace NReadability
         /// </summary>    
         internal string FindBaseUrl(string url)
         {
-            Uri urlUri;
-
-            if (!Uri.TryCreate(url, UriKind.Absolute, out urlUri))
+            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri urlUri))
             {
                 return url;
             }
@@ -1049,7 +1038,7 @@ namespace NReadability
                 }
 
                 XElement parentElement = paraElement.Parent;
-                XElement grandParentElement = parentElement != null ? parentElement.Parent : null;
+                XElement grandParentElement = parentElement?.Parent;
                 int score = 1; // 1 point for having a paragraph
 
                 // Add points for any comma-segments within this paragraph.
@@ -1352,13 +1341,13 @@ namespace NReadability
 
             string result;
 
-            if (node is XElement)
+            if (node is XElement element)
             {
-                result = ((XElement)node).Value;
+                result = element.Value;
             }
-            else if (node is XText)
+            else if (node is XText text)
             {
-                result = ((XText)node).Value;
+                result = text.Value;
             }
             else
             {
@@ -1651,22 +1640,18 @@ namespace NReadability
                 return url;
             }
 
-            Uri baseUri;
-
-            if (!Uri.TryCreate(articleUrl, UriKind.Absolute, out baseUri))
+            if (!Uri.TryCreate(articleUrl, UriKind.Absolute, out Uri baseUri))
             {
                 return url;
             }
 
             /* If the link is simply a query string, then simply attach it to the original URL */
-            if (url.StartsWith("?"))
+            if (url.StartsWith('?'))
             {
                 return baseUri.Scheme + "://" + baseUri.Host + baseUri.AbsolutePath + url;
             }
 
-            Uri absoluteUri;
-
-            if (Uri.TryCreate(baseUri, url, out absoluteUri))
+            if (Uri.TryCreate(baseUri, url, out Uri absoluteUri))
             {
                 return absoluteUri.OriginalString;
             }
@@ -1722,10 +1707,7 @@ namespace NReadability
               transcodedXmlDocument.Root
                 .GetElementsByTagName("h1").FirstOrDefault();
 
-            string extractedTitle =
-              firstH1Element != null
-                ? firstH1Element.Value
-                : null;
+            string extractedTitle = firstH1Element?.Value;
 
             if (!string.IsNullOrEmpty(extractedTitle))
             {

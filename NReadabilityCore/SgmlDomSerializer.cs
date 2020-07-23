@@ -27,10 +27,8 @@ namespace NReadability
     /// <summary>
     /// A class for serializing a DOM to string.
     /// </summary>
-    public class SgmlDomSerializer
+    public sealed class SgmlDomSerializer
     {
-        #region Public methods
-
         /// <summary>
         /// Serializes given DOM (System.Xml.Linq.XDocument object) to a string.
         /// </summary>
@@ -86,8 +84,6 @@ namespace NReadability
         {
             return SerializeDocument(document, DomSerializationParams.CreateDefault());
         }
-
-        #endregion
 
         #region Private helper methods
 

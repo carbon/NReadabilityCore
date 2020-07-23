@@ -27,21 +27,10 @@ namespace NReadability
     {
         private readonly Action<XElement> _elementVisitor;
 
-        #region Constructor(s)
-
         public ElementsTraverser(Action<XElement> elementVisitor)
         {
-            if (elementVisitor == null)
-            {
-                throw new ArgumentNullException("elementVisitor");
-            }
-
-            _elementVisitor = elementVisitor;
+            _elementVisitor = elementVisitor ?? throw new ArgumentNullException(nameof(elementVisitor));
         }
-
-        #endregion
-
-        #region Public methods
 
         public void Traverse(XElement element)
         {
@@ -53,15 +42,13 @@ namespace NReadability
             {
                 var nextChildNode = childNode.NextNode;
 
-                if (childNode is XElement)
+                if (childNode is XElement childElement)
                 {
-                    Traverse((XElement)childNode);
+                    Traverse(childElement);
                 }
 
                 childNode = nextChildNode;
             }
         }
-
-        #endregion
     }
 }
