@@ -136,6 +136,11 @@ namespace Carbon.Readability
 
         public static string GetAttributesString(this XElement element, string separator)
         {
+            if (separator is null)
+            {
+                throw new ArgumentNullException(nameof(separator));
+            }
+
             var resultSb = new StringBuilder();
             bool isFirst = true;
 
@@ -213,6 +218,19 @@ namespace Carbon.Readability
                     yield return childEl;
                 }
             }
+        }
+
+        public static XElement? FindFirstChildWithTagName(this XContainer container, string tagName)
+        {
+            foreach (var childEl in container.Elements())
+            {
+                if (childEl.Name?.LocalName is string localName && localName.Equals(tagName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return childEl;
+                }
+            }
+
+            return null;
         }
     }
 }

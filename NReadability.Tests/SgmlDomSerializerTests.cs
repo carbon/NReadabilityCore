@@ -23,20 +23,18 @@ namespace Carbon.Readability.Tests
 
             var xDocument = SgmlDomBuilder.BuildDocument(htmlContent);
 
-            var domSerializationParams =
-              new DomSerializationParams
-              {
-                  DontIncludeMobileSpecificMetaElements = false,
-              };
-
+          
             // act
             string serializedHtmlContent =
-              _sgmlDomSerializer.SerializeDocument(xDocument, domSerializationParams);
+              _sgmlDomSerializer.SerializeDocument(xDocument, new DomSerializationParams { PrettyPrint = true });
+
+            throw new System.Exception(serializedHtmlContent);
 
             // assert
             AssertViewportMetaElementPresence(serializedHtmlContent, false);
         }
 
+        /*
         [Test]
         public void Serializer_removes_viewport_meta_element_if_DontIncludeMobileSpecificElements_is_true()
         {
@@ -58,7 +56,9 @@ namespace Carbon.Readability.Tests
             // assert
             AssertViewportMetaElementPresence(serializedHtmlContent, false);
         }
+        */
 
+        /*
         [Test]
         public void Serializer_adds_content_type_meta_element_if_DontIncludeContentTypeMetaElement_is_false()
         {
@@ -80,6 +80,7 @@ namespace Carbon.Readability.Tests
             // assert
             AssertContentTypeMetaElementPresence(serializedHtmlContent, false);
         }
+        */
 
         [Test]
         public void Serializer_removes_existing_generator_meta_element()

@@ -27,8 +27,7 @@ namespace Carbon.Readability
 {
     public sealed class UrlFetcher : IUrlFetcher
     {
-        private readonly HttpClient http = new HttpClient(new SocketsHttpHandler()
-        {
+        private readonly HttpClient http = new HttpClient(new SocketsHttpHandler {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Brotli | DecompressionMethods.Deflate,
             UseCookies = true,
             ConnectTimeout = TimeSpan.FromSeconds(5)
@@ -41,19 +40,10 @@ namespace Carbon.Readability
                 { "Accept-Encoding", "gzip,deflate" }
             }
         };
-       
-      
-        /*
-        public string UploadValues(string url, NameValueCollection keyValuePairs)
-        {
-            return MakeRequest(url, () => _webClient.UploadValues(url, keyValuePairs));
-        }
-        */
 
         public async Task<string> FetchAsync(string url)
         {
             return await http.GetStringAsync(url).ConfigureAwait(false);
         }
-
     }
 }

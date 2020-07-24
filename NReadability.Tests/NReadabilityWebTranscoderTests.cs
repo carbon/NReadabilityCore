@@ -21,7 +21,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -138,39 +137,54 @@ namespace Carbon.Readability.Tests
 
         #endregion
 
-
-        public class RealUrlFetcher : IUrlFetcher
-        {
-            public Task<string> FetchAsync(string url)
-            {
-                return new HttpClient().GetStringAsync(url);
-
-            }
-        }
         // SampleWebOutput
-        [Test]
+        // [Test]
         public async Task NewYorker()
         {
 
             const string outputDir = "SampleWebOutput";
 
 
-            var fetcher = new RealUrlFetcher();
+            var fetcher = new UrlFetcher();
 
             var nReadabilityTranscoder = new ReadabilityTranscoder();
             var nReadabilityWebTranscoder = new ReadabilityWebTranscoder(nReadabilityTranscoder, fetcher);
 
-            var webTranscodingInput = new WebTranscodingInput("https://www.newyorker.com/culture/postscript/a-few-words-about-jerry-stiller");
+            var request = new WebTranscodeRequest("https://www.newyorker.com/culture/postscript/a-few-words-about-jerry-stiller");
 
-            WebTranscodingResult webTranscodingResult = await nReadabilityWebTranscoder.TranscodeAsync(webTranscodingInput);
+            var result = await nReadabilityWebTranscoder.TranscodeAsync(request);
 
-            Assert.IsTrue(webTranscodingResult.ContentExtracted);
+            Assert.IsTrue(result.ContentExtracted);
 
 
-            string extractedContent = webTranscodingResult.Content;
+            string extractedContent = result.Content;
 
             File.WriteAllText(
               Path.Combine(outputDir, string.Format("SampleOutput_newyorker.html")),
+              extractedContent,
+              Encoding.UTF8);
+        }
+
+        [Test]
+        public async Task Semplice1()
+        {
+            const string outputDir = "SampleWebOutput";
+
+            var fetcher = new UrlFetcher();
+
+            var nReadabilityTranscoder = new ReadabilityTranscoder();
+            var nReadabilityWebTranscoder = new ReadabilityWebTranscoder(nReadabilityTranscoder, fetcher);
+
+            var webTranscodingInput = new WebTranscodeRequest("https://vanschneider.com/the-art-of-pricing-freelance-projects");
+
+            var result = await nReadabilityWebTranscoder.TranscodeAsync(webTranscodingInput);
+
+            Assert.IsTrue(result.ContentExtracted);
+
+            string extractedContent = result.Content;
+
+            File.WriteAllText(
+              Path.Combine(outputDir, string.Format("SampleOutput_a1.html")),
               extractedContent,
               Encoding.UTF8);
         }
@@ -189,124 +203,128 @@ namespace Carbon.Readability.Tests
             var nReadabilityTranscoder = new ReadabilityTranscoder();
             var nReadabilityWebTranscoder = new ReadabilityWebTranscoder(nReadabilityTranscoder, fetcher);
 
-            var webTranscodingInput = new WebTranscodingInput(initialUrl);
+            var request = new WebTranscodeRequest(initialUrl);
 
-            WebTranscodingResult webTranscodingResult = await nReadabilityWebTranscoder.TranscodeAsync(webTranscodingInput);
+            request.DomSerializationParams.PrettyPrint = true;
 
-            Assert.IsTrue(webTranscodingResult.ContentExtracted);
+            var result = await nReadabilityWebTranscoder.TranscodeAsync(request);
+
+            Assert.IsTrue(result.ContentExtracted);
 
             if (!Directory.Exists(outputDir))
             {
                 Directory.CreateDirectory(outputDir);
             }
 
-            string extractedContent = webTranscodingResult.Content;
+            string content = result.Content;
+
+          
 
             File.WriteAllText(
               Path.Combine(outputDir, string.Format("SampleOutput_{0}.html", sampleInputNumberStr)),
-              extractedContent,
+              content,
               Encoding.UTF8);
 
             switch (sampleInputNumber)
             {
                 case 1:
-                    Assert.IsTrue(extractedContent.Contains(" freedom of movement or expression would constitute a new and unacceptable denial"));
-                    Assert.IsTrue(extractedContent.Contains("Those expectations were on display in the crowd outside her house on Saturday."));
-                    Assert.That(Regex.Matches(extractedContent, "Myanmar Junta Frees Dissident Daw Aung San Suu Kyi").Count, Is.EqualTo(4));
+                    Assert.IsTrue(content.Contains(" freedom of movement or expression would constitute a new and unacceptable denial"));
+                    Assert.IsTrue(content.Contains("Those expectations were on display in the crowd outside her house on Saturday."));
+                    Assert.That(Regex.Matches(content, "Myanmar Junta Frees Dissident Daw Aung San Suu Kyi").Count, Is.EqualTo(4));
                     break;
 
                 case 2:
-                    Assert.IsTrue(extractedContent.Contains("For Louie and Phil, the conversations did more than keep their minds sharp."));
-                    Assert.IsTrue(extractedContent.Contains("It was absolutely dark and absolutely silent, save for the chattering of Phil’s teeth."));
-                    Assert.IsTrue(extractedContent.Contains("A serial runaway and artful dodger"));
-                    Assert.That(Regex.Matches(extractedContent, @"Adrift but Unbroken \| Politics").Count, Is.EqualTo(2));
+                    Assert.IsTrue(content.Contains("For Louie and Phil, the conversations did more than keep their minds sharp."));
+                    Assert.IsTrue(content.Contains("It was absolutely dark and absolutely silent, save for the chattering of Phil’s teeth."));
+                    Assert.IsTrue(content.Contains("A serial runaway and artful dodger"));
+                    Assert.That(Regex.Matches(content, @"Adrift but Unbroken \| Politics").Count, Is.EqualTo(2));
                     break;
 
                 case 3:
-                    Assert.IsTrue(extractedContent.Contains("The Chinese system as a whole has great weaknesses as well as great strengths."));
-                    Assert.IsTrue(extractedContent.Contains(" This emphasis on limits is what begins pointing us back to coal."));
-                    Assert.IsTrue(extractedContent.Contains(". For example, the possibility of dramatic rises in ocean levels, which could affect the habitability"));
-                    Assert.That(Regex.Matches(extractedContent, "Dirty Coal, Clean Future - Magazine").Count, Is.EqualTo(3)); // Makes sure the title isn't duplicated
+                    Assert.IsTrue(content.Contains("The Chinese system as a whole has great weaknesses as well as great strengths."));
+                    Assert.IsTrue(content.Contains(" This emphasis on limits is what begins pointing us back to coal."));
+                    Assert.IsTrue(content.Contains(". For example, the possibility of dramatic rises in ocean levels, which could affect the habitability"));
+                    Assert.That(Regex.Matches(content, "Dirty Coal, Clean Future - Magazine").Count, Is.EqualTo(3)); // Makes sure the title isn't duplicated
                     break;
 
                 case 4:  // Test duplicate content on subsequent page
-                    Assert.That(Regex.Matches(extractedContent, "his may seem paradoxical, or backward").Count, Is.EqualTo(1));
+                    Assert.That(Regex.Matches(content, "his may seem paradoxical, or backward").Count, Is.EqualTo(1));
                     break;
 
                 case 5:
                     // page 1
-                    Assert.IsTrue(extractedContent.Contains("The pressure's on, and as you glance back and forth between your rack and the board, you can hardly believe your eyes at the play you can make."));
-                    Assert.IsTrue(extractedContent.Contains("How can you take your game to the next level? Let's start by looking at game play."));
+                    Assert.IsTrue(content.Contains("The pressure's on, and as you glance back and forth between your rack and the board, you can hardly believe your eyes at the play you can make."));
+                    Assert.IsTrue(content.Contains("How can you take your game to the next level? Let's start by looking at game play."));
                     // page 2
-                    Assert.IsTrue(extractedContent.Contains("The object of Scrabble is to get the most points by creating words."));
-                    Assert.IsTrue(extractedContent.Contains("Now that you know the parts of the game, let's take a look at how to play it."));
+                    Assert.IsTrue(content.Contains("The object of Scrabble is to get the most points by creating words."));
+                    Assert.IsTrue(content.Contains("Now that you know the parts of the game, let's take a look at how to play it."));
                     // page 3
-                    Assert.IsTrue(extractedContent.Contains("To determine who goes first, put all the tiles into the bag and mix them up."));
-                    Assert.IsTrue(extractedContent.Contains("The game continues until one player uses all of his tiles and there aren't any in the pouch, or if there are no more tiles and no one can make a word. Add up the total of your unplayed tiles and deduct it from your score. If you've used all of your tiles, add the total of the unplayed tiles to your score. The winner has the most points."));
+                    Assert.IsTrue(content.Contains("To determine who goes first, put all the tiles into the bag and mix them up."));
+                    Assert.IsTrue(content.Contains("The game continues until one player uses all of his tiles and there aren't any in the pouch, or if there are no more tiles and no one can make a word. Add up the total of your unplayed tiles and deduct it from your score. If you've used all of your tiles, add the total of the unplayed tiles to your score. The winner has the most points."));
                     // page 4
-                    Assert.IsTrue(extractedContent.Contains("If you play often enough, you'll need to learn how to play the board in order to get the highest score"));
-                    Assert.IsTrue(extractedContent.Contains("With the game's popularity, it now comes in many variations. Let's take a look at some different ways to play Scrabble."));
+                    Assert.IsTrue(content.Contains("If you play often enough, you'll need to learn how to play the board in order to get the highest score"));
+                    Assert.IsTrue(content.Contains("With the game's popularity, it now comes in many variations. Let's take a look at some different ways to play Scrabble."));
                     // page 5
-                    Assert.IsTrue(extractedContent.Contains("Many people play Scrabble on a traditional flat board with the grid imprinted on it."));
-                    Assert.IsTrue(extractedContent.Contains("With its worldwide popularity, it only makes sense that Scrabble comes in languages other than English. "));
+                    Assert.IsTrue(content.Contains("Many people play Scrabble on a traditional flat board with the grid imprinted on it."));
+                    Assert.IsTrue(content.Contains("With its worldwide popularity, it only makes sense that Scrabble comes in languages other than English. "));
                     break;
 
                 case 6:
                     // page 1
-                    Assert.IsTrue(extractedContent.Contains("In the aftermath of his resignation and then his death"));
-                    Assert.IsTrue(extractedContent.Contains("Curb Your Enthusiasm"));
+                    Assert.IsTrue(content.Contains("In the aftermath of his resignation and then his death"));
+                    Assert.IsTrue(content.Contains("Curb Your Enthusiasm"));
                     // page 2
-                    Assert.IsTrue(extractedContent.Contains("Jobs also seemed to suspect that he"));
-                    Assert.IsTrue(extractedContent.Contains("And, sadly, it may remain one forever."));
+                    Assert.IsTrue(content.Contains("Jobs also seemed to suspect that he"));
+                    Assert.IsTrue(content.Contains("And, sadly, it may remain one forever."));
                     break;
 
                 case 7:
                     // page 1
-                    Assert.IsTrue(extractedContent.Contains("post also betrays some misconceptions regarding our report."));
-                    Assert.IsTrue(extractedContent.Contains("After all, none of us can resist the occasional study"));
+                    Assert.IsTrue(content.Contains("post also betrays some misconceptions regarding our report."));
+                    Assert.IsTrue(content.Contains("After all, none of us can resist the occasional study"));
                     // "page" 2 (false positive)
-                    Assert.IsFalse(extractedContent.Contains("In expressing this view, Clinton joins many Americans who worry about online misinformation, loss of privacy, and identity theft."));
+                    Assert.IsFalse(content.Contains("In expressing this view, Clinton joins many Americans who worry about online misinformation, loss of privacy, and identity theft."));
                     break;
 
                 case 8:
                     // page 1
-                    Assert.IsTrue(extractedContent.Contains("For the last couple of days we’ve been asking people"));
-                    Assert.IsTrue(extractedContent.Contains("list your favorite tools for slowing down feeds in the comments"));
+                    Assert.IsTrue(content.Contains("For the last couple of days we’ve been asking people"));
+                    Assert.IsTrue(content.Contains("list your favorite tools for slowing down feeds in the comments"));
                     // "page" 2 (false positive)
-                    Assert.IsFalse(extractedContent.Contains("signature fake news programs"));
+                    Assert.IsFalse(content.Contains("signature fake news programs"));
                     break;
 
                 case 9:
                     // page 1
-                    Assert.IsTrue(extractedContent.Contains("The story is narrated by a young girl named Jean Louise"));
-                    Assert.IsTrue(extractedContent.Contains("toward adulthood."));
+                    Assert.IsTrue(content.Contains("The story is narrated by a young girl named Jean Louise"));
+                    Assert.IsTrue(content.Contains("toward adulthood."));
                     // page 2
-                    Assert.IsTrue(extractedContent.Contains("September arrives, and Dill leaves Maycomb to return to"));
-                    Assert.IsTrue(extractedContent.Contains("educational technique but the law."));
+                    Assert.IsTrue(content.Contains("September arrives, and Dill leaves Maycomb to return to"));
+                    Assert.IsTrue(content.Contains("educational technique but the law."));
                     break;
 
                 case 10:
                     // page 1
-                    Assert.IsTrue(extractedContent.Contains("Curious about Native Client"));
-                    Assert.IsTrue(extractedContent.Contains("also known as the GLES2 Blue Book"));
+                    Assert.IsTrue(content.Contains("Curious about Native Client"));
+                    Assert.IsTrue(content.Contains("also known as the GLES2 Blue Book"));
                     // page 2
-                    Assert.IsTrue(extractedContent.Contains("Most games written specifically for PC"));
-                    Assert.IsTrue(extractedContent.Contains("The things a good script should do"));
+                    Assert.IsTrue(content.Contains("Most games written specifically for PC"));
+                    Assert.IsTrue(content.Contains("The things a good script should do"));
                     // page 3
-                    Assert.IsTrue(extractedContent.Contains("The NaCl team is working hard on debugging"));
-                    Assert.IsTrue(extractedContent.Contains("Unfortunately this isn't really documented"));
+                    Assert.IsTrue(content.Contains("The NaCl team is working hard on debugging"));
+                    Assert.IsTrue(content.Contains("Unfortunately this isn't really documented"));
                     break;
 
                 case 11:
                     // page 1
-                    Assert.IsTrue(extractedContent.Contains("Sony press conference at Gamescom"));
-                    Assert.IsTrue(extractedContent.Contains("The guys can actually model inside the game"));
+                    Assert.IsTrue(content.Contains("Sony press conference at Gamescom"));
+                    Assert.IsTrue(content.Contains("The guys can actually model inside the game"));
                     // page 2
-                    Assert.IsTrue(extractedContent.Contains("You actually fold"));
-                    Assert.IsTrue(extractedContent.Contains("working on the skin shader right now"));
+                    Assert.IsTrue(content.Contains("You actually fold"));
+                    Assert.IsTrue(content.Contains("working on the skin shader right now"));
                     // page 3
-                    Assert.IsTrue(extractedContent.Contains("It was the founding thing"));
-                    Assert.IsTrue(extractedContent.Contains("opportunities that you just did not have on the PS3"));
+                    Assert.IsTrue(content.Contains("It was the founding thing"));
+                    Assert.IsTrue(content.Contains("opportunities that you just did not have on the PS3"));
                     break;
 
                 default:
@@ -326,10 +344,10 @@ namespace Carbon.Readability.Tests
             var urlFetcher = new SimpleUrlFetcherStub(htmlContent);
             var nReadabilityWebTranscoder = new ReadabilityWebTranscoder(nReadabilityTranscoder, urlFetcher);
 
-            var webTranscodingInput = new WebTranscodingInput("http://dummy.com/");
+            var webTranscodingInput = new WebTranscodeRequest("http://dummy.com/");
 
             // act
-            WebTranscodingResult webTranscodingResult = await nReadabilityWebTranscoder.TranscodeAsync(webTranscodingInput);
+            var webTranscodingResult = await nReadabilityWebTranscoder.TranscodeAsync(webTranscodingInput);
 
             // assert
             Assert.IsTrue(webTranscodingResult.TitleExtracted);

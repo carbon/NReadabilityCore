@@ -98,24 +98,16 @@ namespace Carbon.Readability
         /// <summary>
         /// Extracts article content from an HTML page at the given URL.
         /// </summary>
-        /// <param name="webTranscodingInput">An object containing input parameters, i.a. URL of the page to be processed.</param>
+        /// <param name="request">An object containing input parameters, i.a. URL of the page to be processed.</param>
         /// <returns>An object containing transcoding result, i.a. extracted content and title.</returns>
-        public async Task<WebTranscodingResult> TranscodeAsync(WebTranscodingInput webTranscodingInput)
+        public async Task<TranscodeResult> TranscodeAsync(WebTranscodeRequest request)
         {
-            if (webTranscodingInput == null)
+            if (request == null)
             {
-                throw new ArgumentNullException(nameof(webTranscodingInput));
+                throw new ArgumentNullException(nameof(request));
             }
 
-            var transcodeResult = await DoTranscodeAsync(webTranscodingInput.Url, webTranscodingInput.DomSerializationParams).ConfigureAwait(false);
-
-            bool titleExtracted = !string.IsNullOrEmpty(transcodeResult.Title);
-
-            return new WebTranscodingResult(transcodeResult.ContentExtracted, titleExtracted)
-            {
-                Content = transcodeResult.Content,
-                Title = transcodeResult.Title
-            };
+            return await DoTranscodeAsync(request.Url, request.DomSerializationParams).ConfigureAwait(false);           
         }
 
         /// <summary>

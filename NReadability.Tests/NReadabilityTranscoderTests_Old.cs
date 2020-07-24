@@ -733,6 +733,7 @@ namespace Carbon.Readability.Tests
             Assert.IsTrue(result.ContentExtracted);
         }
 
+        /*
         [Test]
         public void MetaViewportElementShouldBeRemoved()
         {
@@ -744,6 +745,7 @@ namespace Carbon.Readability.Tests
             Assert.IsTrue(result.ContentExtracted);
             Assert.IsFalse(result.Content.Contains(metaViewportElementStr));
         }
+        */
 
         [Test]
         public void TestImageSourceTransformer()

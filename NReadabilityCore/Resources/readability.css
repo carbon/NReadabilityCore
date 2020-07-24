@@ -48,7 +48,5 @@ body {font-size: 100%;}
 .bug-red {background:red;}
 .bug-yellow {background:#ffff8e;}
 .bug-blue {background:#bfdfff;}
-/* -- EMAIL / KINDLE POP UP -- */
-#kindle-container, #email-container {position:fixed;top:60px;left:50%;width:500px;height:490px;border:solid 3px #666;background-color:#fff;z-index:100!important;overflow:hidden;margin:0 0 0 -240px;padding:0;}
 /* Override html styling attributes */
 table, tr, td { background-color: transparent !important; }

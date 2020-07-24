@@ -65,6 +65,7 @@ namespace Carbon.Readability
                 ProcessMetaElements(headElement, domSerializationParams);
             }
 
+
             string result = document.ToString(domSerializationParams.PrettyPrint ? SaveOptions.None : SaveOptions.DisableFormatting);
 
 
@@ -104,6 +105,10 @@ namespace Carbon.Readability
                 {
                     metaContentTypeElement.Remove();
                 }
+
+                // <meta charset="utf-8"/>
+
+                // headElement.AddFirst(new XElement("meta", new XAttribute("charset", "utf-8")));
             }
         }
 

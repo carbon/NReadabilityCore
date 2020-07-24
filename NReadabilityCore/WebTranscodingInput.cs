@@ -2,11 +2,11 @@ using System;
 
 namespace Carbon.Readability
 {
-    public sealed class WebTranscodingInput
+    public sealed class WebTranscodeRequest
     {
         private DomSerializationParams _domSerializationParams;
 
-        public WebTranscodingInput(string url)
+        public WebTranscodeRequest(string url)
         {
             if (string.IsNullOrEmpty(url))
             {

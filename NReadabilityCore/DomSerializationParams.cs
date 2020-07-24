@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Carbon.Readability
+﻿namespace Carbon.Readability
 {
     public sealed class DomSerializationParams
     {

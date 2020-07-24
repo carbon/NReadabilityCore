@@ -1635,7 +1635,7 @@ namespace Carbon.Readability
             return false;
         }
 
-        private static string ExtractTitle(XDocument transcodedXmlDocument)
+        private static string? ExtractTitle(XDocument transcodedXmlDocument)
         {
             XElement firstH1Element =
               transcodedXmlDocument.Root
@@ -1659,11 +1659,6 @@ namespace Carbon.Readability
 
         private static XElement TryFindArticleContentElement(XDocument document, string articleContentElementHint)
         {
-            if (document == null)
-            {
-                throw new ArgumentNullException("document");
-            }
-
             if (string.IsNullOrEmpty(articleContentElementHint))
             {
                 throw new ArgumentException("Argument can't be null nor empty.", "articleContentElementHint");
