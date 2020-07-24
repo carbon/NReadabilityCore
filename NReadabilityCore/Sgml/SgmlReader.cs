@@ -13,7 +13,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -240,7 +239,7 @@ namespace Sgml
             }
             // This code makes use of the high water mark for attribute objects,
             // and reuses exisint Attribute objects to avoid memory allocation.
-            a = (Attribute)this.attributes.Push();
+            a = this.attributes.Push();
             if (a == null)
             {
                 a = new Attribute();
@@ -287,7 +286,7 @@ namespace Sgml
             return -1;
         }
 
-        public Attribute GetAttribute(int i)
+        public Attribute? GetAttribute(int i)
         {
             if (i >= 0 && i < this.attributes.Count)
             {
@@ -412,11 +411,13 @@ namespace Sgml
                     if (this.m_docType != null && this.m_docType.Equals("html", StringComparison.OrdinalIgnoreCase))
                     {
                         Assembly a = typeof(SgmlReader).Assembly;
-                        string name = a.FullName.Split(',')[0] + ".Html.dtd";
+                        string name = a.FullName.Split(',')[0] + ".Sgml.Html.dtd";
+
                         Stream stm = a.GetManifestResourceStream(name);
+
                         if (stm != null)
                         {
-                            StreamReader sr = new StreamReader(stm);
+                            var sr = new StreamReader(stm);
                             this.m_dtd = SgmlDtd.Parse(baseUri, "HTML", sr, null, this.m_proxy, null);
                         }
                     }

@@ -35,7 +35,7 @@ namespace Carbon.Readability
         /// <param name="document">System.Xml.Linq.XDocument instance containing the DOM to be serialized.</param>
         /// <param name="domSerializationParams">Contains parameters that modify the behaviour of the output serialization.</param>
         /// <returns>Serialized representation of the DOM.</returns>
-        public string SerializeDocument(XDocument document, DomSerializationParams domSerializationParams)
+        public string Serialize(XDocument document, DomSerializationParams domSerializationParams)
         {
             if (!domSerializationParams.DontIncludeContentTypeMetaElement
              || !domSerializationParams.DontIncludeMobileSpecificMetaElements
@@ -77,9 +77,9 @@ namespace Carbon.Readability
         /// </summary>
         /// <param name="document">System.Xml.Linq.XDocument instance containing the DOM to be serialized.</param>
         /// <returns>Serialized representation of the DOM.</returns>
-        public string SerializeDocument(XDocument document)
+        public string Serialize(XDocument document)
         {
-            return SerializeDocument(document, DomSerializationParams.CreateDefault());
+            return Serialize(document, DomSerializationParams.CreateDefault());
         }
 
         #region Private helper methods

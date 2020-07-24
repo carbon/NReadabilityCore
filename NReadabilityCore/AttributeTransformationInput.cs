@@ -2,10 +2,16 @@
 
 namespace Carbon.Readability
 {
-    public sealed class AttributeTransformationInput
+    public readonly struct AttributeTransformationInput
     {
-        public string AttributeValue { get; set; }
+        public AttributeTransformationInput(string attributeValue, XElement? element)
+        {
+            AttributeValue = attributeValue;
+            Element = element;
+        }
 
-        public XElement Element { get; set; }
+        public string AttributeValue { get; }
+
+        public XElement? Element { get; }
     }
 }

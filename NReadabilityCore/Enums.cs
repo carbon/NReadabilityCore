@@ -20,20 +20,14 @@
 
 namespace Carbon.Readability
 {
-    /// <summary>
-    /// Determines how the extracted article will be styled.
-    /// </summary>
     public enum ReadingStyle
     {
         Newspaper,
         Novel,
         Ebook,
-        Terminal,
+        Terminal
     }
 
-    /// <summary>
-    /// Determines how wide the margin of the extracted article will be.
-    /// </summary>
     public enum ReadingMargin
     {
         XNarrow,
@@ -43,9 +37,6 @@ namespace Carbon.Readability
         XWide,
     }
 
-    /// <summary>
-    /// Determines how large the font of the extracted article will be.
-    /// </summary>
     public enum ReadingSize
     {
         XSmall,

@@ -2,15 +2,12 @@ namespace Carbon.Readability
 {
     public sealed class TranscodeResult
     {
-        public TranscodeResult(bool contentExtracted, bool titleExtracted)
+        public TranscodeResult(bool contentExtracted)
         {
             ContentExtracted = contentExtracted;
-            TitleExtracted = titleExtracted;
         }
 
         public bool ContentExtracted { get; private set; }
-
-        public bool TitleExtracted { get; private set; }
 
         public string? Content { get; set; }
 

@@ -226,13 +226,13 @@ namespace Sgml
                     this.m_stm = new StringReader(this.m_literal);
                 }
             }
-            else if (this.m_uri == null)
+            else if (this.m_uri is null)
             {
                 this.Error($"Unresolvable entity '{m_name}'");
             }
             else
             {
-                throw new Exception("disabled support for uri entities");
+                throw new Exception("no support for uri entities");
             }
         }
 

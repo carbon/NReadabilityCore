@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Carbon.Readability
@@ -12,16 +11,9 @@ namespace Carbon.Readability
         public static T? SingleOrNone<T>(this IEnumerable<T> enumerable)
           where T : class
         {
-            // ReSharper disable PossibleMultipleEnumeration
-
-            if (enumerable == null)
-            {
-                throw new ArgumentNullException("enumerable");
-            }
-
             T firstElement = enumerable.FirstOrDefault();
 
-            if (firstElement == null)
+            if (firstElement is null)
             {
                 // no elements
                 return null;
@@ -31,13 +23,10 @@ namespace Carbon.Readability
 
             if (secondElement != null)
             {
-                // more than one element
                 return null;
             }
 
             return firstElement;
-
-            // ReSharper restore PossibleMultipleEnumeration
         }
     }
 }

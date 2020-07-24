@@ -26,9 +26,9 @@ namespace Carbon.Readability.Tests
           
             // act
             string serializedHtmlContent =
-              _sgmlDomSerializer.SerializeDocument(xDocument, new DomSerializationParams { PrettyPrint = true });
+              _sgmlDomSerializer.Serialize(xDocument, new DomSerializationParams { PrettyPrint = true });
 
-            throw new System.Exception(serializedHtmlContent);
+            // throw new System.Exception(serializedHtmlContent);
 
             // assert
             AssertViewportMetaElementPresence(serializedHtmlContent, false);
@@ -91,7 +91,7 @@ namespace Carbon.Readability.Tests
             var xDocument = SgmlDomBuilder.BuildDocument(htmlContent);
 
             // act
-            string serializedHtmlContent = _sgmlDomSerializer.SerializeDocument(xDocument);
+            string serializedHtmlContent = _sgmlDomSerializer.Serialize(xDocument);
 
             // assert
             MyAssert.AssertSubstringCount(1, serializedHtmlContent, "<meta name=\"Generator\"");
@@ -106,7 +106,7 @@ namespace Carbon.Readability.Tests
             var xDocument = SgmlDomBuilder.BuildDocument(htmlContent);
 
             // act
-            string serializedHtmlContent = _sgmlDomSerializer.SerializeDocument(xDocument);
+            string serializedHtmlContent = _sgmlDomSerializer.Serialize(xDocument);
 
             // assert
             MyAssert.AssertSubstringCount(0, serializedHtmlContent, "<meta http-equiv=\"Content-Type\"");

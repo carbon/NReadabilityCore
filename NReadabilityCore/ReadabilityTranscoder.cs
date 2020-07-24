@@ -235,17 +235,14 @@ namespace Carbon.Readability
                 request.Url,
                 out bool contentExtracted,
                 out string extractedTitle,
-                out string nextPageUrl);
+                out string? nextPageUrl);
 
-            string transcodedContent =
-              _sgmlDomSerializer.SerializeDocument(
+            string transcodedContent = _sgmlDomSerializer.Serialize(
                 transcodedXmlDocument,
                 request.DomSerializationParams);
 
-            bool titleExtracted = !string.IsNullOrEmpty(extractedTitle);
-
             return
-              new TranscodeResult(contentExtracted, titleExtracted)
+              new TranscodeResult(contentExtracted)
               {
                   Content = transcodedContent,
                   Title = extractedTitle,
@@ -759,12 +756,12 @@ namespace Carbon.Readability
             return articleTitleElement;
         }
 
-        internal XElement ExtractArticleContent(XDocument document, string url = null)
+        internal XElement ExtractArticleContent(XDocument document, string? url = null)
         {
             StripUnlikelyCandidates(document);
             CollapseRedundantParagraphDivs(document);
 
-            string articleContentElementHint =
+            string? articleContentElementHint =
               !string.IsNullOrEmpty(url)
                 ? GetArticleContentElementHint(url)
                 : null;
@@ -789,7 +786,7 @@ namespace Carbon.Readability
             /* Include readability.css stylesheet. */
             XElement headElement = document.GetElementsByTagName("head").FirstOrDefault();
 
-            if (headElement == null)
+            if (headElement is null)
             {
                 headElement = new XElement("head");
                 documentBody.AddBeforeSelf(headElement);
@@ -1004,7 +1001,7 @@ namespace Carbon.Readability
 
         internal XElement DetermineTopCandidateElement(XDocument document, IEnumerable<XElement> candidatesForArticleContent)
         {
-            XElement topCandidateElement = null;
+            XElement? topCandidateElement = null;
 
             foreach (XElement candidateElement in candidatesForArticleContent)
             {
@@ -1346,11 +1343,6 @@ namespace Carbon.Readability
         /// </summary>
         internal void CleanConditionally(XElement rootElement, string elementName)
         {
-            if (elementName == null)
-            {
-                throw new ArgumentNullException("elementName");
-            }
-
             IEnumerable<XElement> elements = rootElement.GetElementsByTagName(elementName);
             var elementsToRemove = new List<XElement>();
 
@@ -1516,18 +1508,13 @@ namespace Carbon.Readability
             elementsToRemove.ForEach(elementToRemove => elementToRemove.Remove());
         }
 
-        private static void ResolveElementsUrls(XDocument document, string tagName, string attributeName, string url, Func<AttributeTransformationInput, AttributeTransformationResult> attributeValueTransformer)
+        private static void ResolveElementsUrls(
+            XDocument document,
+            string tagName,
+            string attributeName, 
+            string url, 
+            Func<AttributeTransformationInput, AttributeTransformationResult> attributeValueTransformer)
         {
-            if (document == null)
-            {
-                throw new ArgumentNullException("document");
-            }
-
-            if (string.IsNullOrEmpty(url))
-            {
-                throw new ArgumentNullException("url");
-            }
-
             IEnumerable<XElement> elements = document.GetElementsByTagName(tagName);
 
             foreach (XElement element in elements)
@@ -1547,7 +1534,7 @@ namespace Carbon.Readability
 
                     if (attributeValueTransformer != null)
                     {
-                        attributeTransformationResult = attributeValueTransformer.Invoke(new AttributeTransformationInput { AttributeValue = attributeValue, Element = element });
+                        attributeTransformationResult = attributeValueTransformer.Invoke(new AttributeTransformationInput(attributeValue, element));
                     }
                     else
                     {

@@ -4,7 +4,7 @@ namespace Carbon.Readability
 {
     public sealed class WebTranscodeRequest
     {
-        private DomSerializationParams _domSerializationParams;
+        private DomSerializationParams? _domSerializationParams;
 
         public WebTranscodeRequest(string url)
         {

@@ -68,7 +68,7 @@ namespace Carbon.Readability.Tests
 
             transcoder.StripUnlikelyCandidates(document);
 
-            string newContent = _sgmlDomSerializer.SerializeDocument(document);
+            string newContent = _sgmlDomSerializer.Serialize(document);
 
             AssertHtmlContentIsEmpty(newContent);
         }
@@ -81,7 +81,7 @@ namespace Carbon.Readability.Tests
 
             transcoder.StripUnlikelyCandidates(document);
 
-            string newContent = _sgmlDomSerializer.SerializeDocument(document);
+            string newContent = _sgmlDomSerializer.Serialize(document);
 
             AssertHtmlContentsAreEqual(content, newContent);
         }
@@ -118,7 +118,7 @@ namespace Carbon.Readability.Tests
 
             transcoder.CollapseRedundantParagraphDivs(document);
 
-            string newContent = _sgmlDomSerializer.SerializeDocument(document);
+            string newContent = _sgmlDomSerializer.Serialize(document);
 
             AssertHtmlContentsAreEqual(paragraph, newContent);
         }
@@ -758,7 +758,7 @@ namespace Carbon.Readability.Tests
               };
 
             string originalSrcValue = "http://example.com/some_image.jpg";
-            string expectedSrcValue = imgSrcTransformer(new AttributeTransformationInput { AttributeValue = originalSrcValue, Element = null }).TransformedValue;
+            string expectedSrcValue = imgSrcTransformer(new AttributeTransformationInput(originalSrcValue, null)).TransformedValue;
 
             string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             string htmlContent = "<html><body>" + dummyParagraphs + "<p><img src=\"" + originalSrcValue + "\" /></p>" + dummyParagraphs + "</body></html>";
@@ -786,7 +786,7 @@ namespace Carbon.Readability.Tests
               };
 
             string originalHrefValue = "http://example.com/some_article.html";
-            string expectedHrefValue = anchorHrefTransformer(new AttributeTransformationInput { AttributeValue = originalHrefValue, Element = null }).TransformedValue;
+            string expectedHrefValue = anchorHrefTransformer(new AttributeTransformationInput(originalHrefValue, null)).TransformedValue;
 
             string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             string htmlContent = "<html><body>" + dummyParagraphs + "<p><a href=\"" + originalHrefValue + "\">Some article</a></p>" + dummyParagraphs + "</body></html>";
@@ -830,11 +830,11 @@ namespace Carbon.Readability.Tests
         private static void AssertHtmlContentsAreEqual(string expectedContent, string actualContent)
         {
             string serializedExpectedContent =
-              _sgmlDomSerializer.SerializeDocument(
+              _sgmlDomSerializer.Serialize(
                 SgmlDomBuilder.BuildDocument(expectedContent));
 
             string serializedActualContent =
-              _sgmlDomSerializer.SerializeDocument(
+              _sgmlDomSerializer.Serialize(
                 SgmlDomBuilder.BuildDocument(actualContent));
 
             Assert.AreEqual(serializedExpectedContent, serializedActualContent);

@@ -67,7 +67,7 @@ namespace Carbon.Readability.Tests
 
             _nReadabilityTranscoder.StripUnlikelyCandidates(document);
 
-            string newContent = _sgmlDomSerializer.SerializeDocument(document);
+            string newContent = _sgmlDomSerializer.Serialize(document);
 
             AssertHtmlContentIsEmpty(newContent);
         }
@@ -80,7 +80,7 @@ namespace Carbon.Readability.Tests
 
             _nReadabilityTranscoder.StripUnlikelyCandidates(document);
 
-            string newContent = _sgmlDomSerializer.SerializeDocument(document);
+            string newContent = _sgmlDomSerializer.Serialize(document);
 
             AssertHtmlContentsAreEqual(content, newContent);
         }
@@ -117,7 +117,7 @@ namespace Carbon.Readability.Tests
 
             _nReadabilityTranscoder.CollapseRedundantParagraphDivs(document);
 
-            string newContent = _sgmlDomSerializer.SerializeDocument(document);
+            string newContent = _sgmlDomSerializer.Serialize(document);
 
             AssertHtmlContentsAreEqual(paragraph, newContent);
         }
@@ -842,7 +842,7 @@ namespace Carbon.Readability.Tests
               };
 
             string originalSrcValue = "http://example.com/some_image.jpg";
-            string expectedSrcValue = imgSrcTransformer(new AttributeTransformationInput { AttributeValue = originalSrcValue, Element = null }).TransformedValue;
+            string expectedSrcValue = imgSrcTransformer(new AttributeTransformationInput(originalSrcValue, null)).TransformedValue;
 
             string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             string htmlContent = "<html><body>" + dummyParagraphs + "<p><img src=\"" + originalSrcValue + "\" /></p>" + dummyParagraphs + "</body></html>";
@@ -880,7 +880,7 @@ namespace Carbon.Readability.Tests
               };
 
             string originalHrefValue = "http://example.com/some_article.html";
-            string expectedHrefValue = anchorHrefTransformer(new AttributeTransformationInput { AttributeValue = originalHrefValue, Element = null }).TransformedValue;
+            string expectedHrefValue = anchorHrefTransformer(new AttributeTransformationInput(originalHrefValue, null)).TransformedValue;
 
             string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             string htmlContent = "<html><body>" + dummyParagraphs + "<p><a href=\"" + originalHrefValue + "\">Some article</a></p>" + dummyParagraphs + "</body></html>";
@@ -919,25 +919,22 @@ namespace Carbon.Readability.Tests
             TranscodeResult transcodingResult = _nReadabilityTranscoder.Transcode(transcodingInput);
 
             // assert
-            Assert.IsTrue(transcodingResult.TitleExtracted);
+            Assert.NotNull(transcodingResult.Title);
             Assert.AreEqual(expectedTitle, transcodingResult.Title);
         }
 
         [Test]
         public void Transcode_can_extract_title_from_body_h1()
         {
-            // arrange
             const string expectedTitle = "Some title ąęłóżźńć";
             const string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             const string htmlContent = "<html><body><div id=\"main\"><h1>" + expectedTitle + "</h1>" + dummyParagraphs + "</div></body></html>";
 
             var transcodingInput = new TranscodeRequest(htmlContent);
 
-            // act
             TranscodeResult transcodingResult = _nReadabilityTranscoder.Transcode(transcodingInput);
 
-            // assert
-            Assert.IsTrue(transcodingResult.TitleExtracted);
+            Assert.NotNull(transcodingResult.Title);
             Assert.AreEqual(expectedTitle, transcodingResult.Title);
         }
 
@@ -955,7 +952,7 @@ namespace Carbon.Readability.Tests
             TranscodeResult transcodingResult = _nReadabilityTranscoder.Transcode(transcodingInput);
 
             // assert
-            Assert.IsTrue(transcodingResult.TitleExtracted);
+            Assert.NotNull(transcodingResult.Title);
             Assert.AreEqual(expectedTitle, transcodingResult.Title);
         }
 
@@ -969,12 +966,11 @@ namespace Carbon.Readability.Tests
 
             var transcodingInput = new TranscodeRequest(htmlContent);
 
-            // act
-            TranscodeResult transcodingResult = _nReadabilityTranscoder.Transcode(transcodingInput);
+            TranscodeResult result = _nReadabilityTranscoder.Transcode(transcodingInput);
 
             // assert
-            Assert.IsTrue(transcodingResult.TitleExtracted);
-            Assert.AreEqual(expectedTitle, transcodingResult.Title);
+            Assert.NotNull(result.Title);
+            Assert.AreEqual(expectedTitle, result.Title);
         }
 
         #endregion
@@ -993,7 +989,7 @@ namespace Carbon.Readability.Tests
             Assert.AreEqual(
               0,
               (from node in document.DescendantNodes()
-               let name = node is XElement ? ((XElement)node).Name.LocalName : ""
+               let name = node is XElement element ? element.Name.LocalName : string.Empty
                where !"html".Equals(name, StringComparison.OrdinalIgnoreCase)
                   && !"head".Equals(name, StringComparison.OrdinalIgnoreCase)
                   && !"meta".Equals(name, StringComparison.OrdinalIgnoreCase)
@@ -1003,11 +999,11 @@ namespace Carbon.Readability.Tests
         private static void AssertHtmlContentsAreEqual(string expectedContent, string actualContent)
         {
             string serializedExpectedContent =
-              _sgmlDomSerializer.SerializeDocument(
+              _sgmlDomSerializer.Serialize(
                 SgmlDomBuilder.BuildDocument(expectedContent));
 
             string serializedActualContent =
-              _sgmlDomSerializer.SerializeDocument(
+              _sgmlDomSerializer.Serialize(
                 SgmlDomBuilder.BuildDocument(actualContent));
 
             Assert.AreEqual(serializedExpectedContent, serializedActualContent);
@@ -1049,20 +1045,13 @@ namespace Carbon.Readability.Tests
 
         private void TestReplacingImageUrl(string srcAttribute, string url, string expectedImageUrl)
         {
-            // arrange
             string dummyParagraphs = "<p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p><p>Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet. Lorem ipsum dolor et amet.</p>";
             string htmlContent = "<html><body>" + dummyParagraphs + "<p><img src=\"" + srcAttribute + "\" /></p>" + dummyParagraphs + "</body></html>";
 
-            var transcodingInput =
-              new TranscodeRequest(htmlContent)
-              {
-                  Url = url,
-              };
+            var request = new TranscodeRequest(htmlContent, url: url);
 
-            // act
-            TranscodeResult transcodingResult = _nReadabilityTranscoder.Transcode(transcodingInput);
+            TranscodeResult transcodingResult = _nReadabilityTranscoder.Transcode(request);
 
-            // assert
             Assert.IsTrue(transcodingResult.ContentExtracted);
 
             Assert.IsTrue(

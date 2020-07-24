@@ -23,13 +23,13 @@ using System.Xml.Linq;
 
 namespace Carbon.Readability
 {
-    internal class ChildNodesTraverser
+    internal sealed class ChildNodesTraverser
     {
         private readonly Action<XNode> _childNodeVisitor;
 
         public ChildNodesTraverser(Action<XNode> childNodeVisitor)
         {
-            _childNodeVisitor = childNodeVisitor ?? throw new ArgumentNullException("childNodeVisitor");
+            _childNodeVisitor = childNodeVisitor;
         }
 
         public void Traverse(XNode node)

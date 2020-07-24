@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carbon.Readability", "NRead
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carbon.Readability.Tests", "NReadability.Tests\Carbon.Readability.Tests.csproj", "{F70F67F2-724C-453F-98C4-7C4537B1B1B6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SgmlReader.NetCore", "SgmlReader.NetCore\SgmlReader.NetCore.csproj", "{0C4A210C-6B54-4135-A89D-A9E5DB6A1654}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{F70F67F2-724C-453F-98C4-7C4537B1B1B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F70F67F2-724C-453F-98C4-7C4537B1B1B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F70F67F2-724C-453F-98C4-7C4537B1B1B6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0C4A210C-6B54-4135-A89D-A9E5DB6A1654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0C4A210C-6B54-4135-A89D-A9E5DB6A1654}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0C4A210C-6B54-4135-A89D-A9E5DB6A1654}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0C4A210C-6B54-4135-A89D-A9E5DB6A1654}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

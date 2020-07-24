@@ -102,11 +102,6 @@ namespace Carbon.Readability
         /// <returns>An object containing transcoding result, i.a. extracted content and title.</returns>
         public async Task<TranscodeResult> TranscodeAsync(WebTranscodeRequest request)
         {
-            if (request == null)
-            {
-                throw new ArgumentNullException(nameof(request));
-            }
-
             return await DoTranscodeAsync(request.Url, request.DomSerializationParams).ConfigureAwait(false);           
         }
 
@@ -153,7 +148,7 @@ namespace Carbon.Readability
             /* If we can't fetch the page, then exit. */
             if (string.IsNullOrEmpty(htmlContent))
             {
-                return new TranscodeResult(false, false);
+                return new TranscodeResult(false);
             }
 
             /* Attempt to transcode the page */
@@ -178,9 +173,9 @@ namespace Carbon.Readability
                 articleContainer.SetClass("page");
             }
 
-            string content = _sgmlDomSerializer.SerializeDocument(document, domSerializationParams);
+            string content = _sgmlDomSerializer.Serialize(document, domSerializationParams);
 
-            return new TranscodeResult(mainContentExtracted, extractedTitle != null)
+            return new TranscodeResult(mainContentExtracted)
             {
                 Content = content,
                 Title = extractedTitle

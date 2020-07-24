@@ -39,7 +39,7 @@ namespace Carbon.Readability.Tests
             var xDocument = SgmlDomBuilder.BuildDocument(htmlContent);
 
             // assert
-            string serializedHtmlContent = _sgmlDomSerializer.SerializeDocument(xDocument);
+            string serializedHtmlContent = _sgmlDomSerializer.Serialize(xDocument);
 
             MyAssert.AssertSubstringCount(1, serializedHtmlContent, "<html");
         }
@@ -49,7 +49,7 @@ namespace Carbon.Readability.Tests
         {
             XDocument document = SgmlDomBuilder.BuildDocument("<p>&#</p>");
 
-            Assert.DoesNotThrow(() => _sgmlDomSerializer.SerializeDocument(document));
+            Assert.DoesNotThrow(() => _sgmlDomSerializer.Serialize(document));
         }
 
         #endregion

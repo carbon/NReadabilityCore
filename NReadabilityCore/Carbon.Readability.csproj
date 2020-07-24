@@ -3,14 +3,10 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Authors>f14shm4n iamcarbon</Authors>
-    <Description>Original repository: https://github.com/marek-stoj/NReadability</Description>
+    <Description>A modernized fork of https://github.com/marek-stoj/NReadability</Description>
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/f14shm4n/NReadabilityCore</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/f14shm4n/NReadabilityCore</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Html;Readability;NReadability;NetStandard;</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.0.0</Version>
+    <Version>0.1.0</Version>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -20,10 +16,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\readability.css" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\SgmlReader.NetCore\SgmlReader.NetCore.csproj" />
+    <EmbeddedResource Include="Sgml\Html.dtd" />
   </ItemGroup>
 
 </Project>

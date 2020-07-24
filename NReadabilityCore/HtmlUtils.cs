@@ -6,14 +6,9 @@ namespace Carbon.Readability
     {
         public static ReadOnlySpan<char> RemoveScriptTags(ReadOnlySpan<char> htmlContent)
         {
-            if (htmlContent == null)
-            {
-                throw new ArgumentNullException("htmlContent");
-            }
-
             if (htmlContent.Length == 0)
             {
-                return "";
+                return string.Empty;
             }
 
             int indexOfScriptTagStart = htmlContent.IndexOf("<script", StringComparison.OrdinalIgnoreCase);

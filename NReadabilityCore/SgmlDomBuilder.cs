@@ -41,17 +41,13 @@ namespace Carbon.Readability
         /// <returns>System.Linq.Xml.XDocument instance which is a DOM of the provided HTML markup.</returns>
         public static XDocument BuildDocument(ReadOnlySpan<char> htmlContent)
         {
-            if (htmlContent == null)
-            {
-                throw new ArgumentNullException("htmlContent");
-            }
-
             if (htmlContent.Trim().Length == 0)
             {
                 return new XDocument();
             }
 
             // "trim end" htmlContent to ...</html>$ (codinghorror.com puts some scripts after the </html> - sic!)
+
             const string htmlEnd = "</html";
             int indexOfHtmlEnd = htmlContent.LastIndexOf(htmlEnd);
 
@@ -91,8 +87,7 @@ namespace Carbon.Readability
 
         private static XDocument LoadDocument(ReadOnlySpan<char> htmlContent)
         {
-            using var sgmlReader = new SgmlReader
-            {
+            using var reader = new SgmlReader {
                 CaseFolding = CaseFolding.ToLower,
                 DocType = "HTML",
                 WhitespaceHandling = WhitespaceHandling.None
@@ -106,9 +101,9 @@ namespace Carbon.Readability
 
                 using var sr = new StreamReader(new MemoryStream(buffer, 0, byteCount));
 
-                sgmlReader.InputStream = sr;
+                reader.InputStream = sr;
 
-                var document = XDocument.Load(sgmlReader);
+                var document = XDocument.Load(reader);
 
                 return document;
             }

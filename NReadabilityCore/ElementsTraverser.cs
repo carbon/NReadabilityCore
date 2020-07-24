@@ -29,7 +29,7 @@ namespace Carbon.Readability
 
         public ElementsTraverser(Action<XElement> elementVisitor)
         {
-            _elementVisitor = elementVisitor ?? throw new ArgumentNullException(nameof(elementVisitor));
+            _elementVisitor = elementVisitor;
         }
 
         public void Traverse(XElement element)

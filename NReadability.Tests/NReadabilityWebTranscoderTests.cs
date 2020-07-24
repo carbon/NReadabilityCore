@@ -344,14 +344,12 @@ namespace Carbon.Readability.Tests
             var urlFetcher = new SimpleUrlFetcherStub(htmlContent);
             var nReadabilityWebTranscoder = new ReadabilityWebTranscoder(nReadabilityTranscoder, urlFetcher);
 
-            var webTranscodingInput = new WebTranscodeRequest("http://dummy.com/");
+            var request = new WebTranscodeRequest("http://dummy.com/");
 
-            // act
-            var webTranscodingResult = await nReadabilityWebTranscoder.TranscodeAsync(webTranscodingInput);
+            var result = await nReadabilityWebTranscoder.TranscodeAsync(request);
 
-            // assert
-            Assert.IsTrue(webTranscodingResult.TitleExtracted);
-            Assert.AreEqual(expectedTitle, webTranscodingResult.Title);
+            Assert.NotNull(result.Title);
+            Assert.AreEqual(expectedTitle, result.Title);
         }
     }
 }

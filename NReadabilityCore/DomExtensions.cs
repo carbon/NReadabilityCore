@@ -61,11 +61,6 @@ namespace Carbon.Readability
 
         public static XElement GetElementById(this XDocument document, string id)
         {
-            if (document == null)
-            {
-                throw new ArgumentNullException("document");
-            }
-
             if (string.IsNullOrEmpty(id))
             {
                 throw new ArgumentNullException("id");

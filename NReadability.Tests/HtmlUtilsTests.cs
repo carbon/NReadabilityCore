@@ -8,12 +8,6 @@ namespace Carbon.Readability.Tests
     public class HtmlUtilsTests
     {
         [Test]
-        public void RemoveScriptTags_handles_invalid_arguments()
-        {
-            Assert.Throws<ArgumentNullException>(() => HtmlUtils.RemoveScriptTags(null));
-        }
-
-        [Test]
         public void RemoveScriptTags_works_with_empty_argument()
         {
             Assert.DoesNotThrow(() => HtmlUtils.RemoveScriptTags(""));

@@ -15,7 +15,6 @@ using System.Xml;
 
 namespace Sgml
 {
-
     // This class decodes an HTML/XML stream correctly.
     internal sealed class HtmlStream : TextReader
     {
@@ -1118,9 +1117,6 @@ namespace Sgml
         /// </remarks>
         public bool CanContain(string name, SgmlDtd dtd)
         {
-            if (dtd == null)
-                throw new ArgumentNullException("dtd");
-
             // Do a simple search of members.
             foreach (object obj in Members)
             {
@@ -1500,7 +1496,6 @@ namespace Sgml
         /// <param name="proxy">The proxy server to use when loading resources.</param>
         /// <param name="nt">The <see cref="XmlNameTable"/> is NOT used.</param>
         /// <returns>A new <see cref="SgmlDtd"/> instance that encapsulates the DTD.</returns>
-        [SuppressMessage("Microsoft.Reliability", "CA2000", Justification = "The entities created here are not temporary and should not be disposed here.")]
         public static SgmlDtd Parse(Uri baseUri, string name, TextReader input, string subset, string proxy, XmlNameTable nt)
         {
             SgmlDtd dtd = new SgmlDtd(name, nt);
