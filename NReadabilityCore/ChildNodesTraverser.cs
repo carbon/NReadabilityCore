@@ -21,7 +21,7 @@
 using System;
 using System.Xml.Linq;
 
-namespace NReadability
+namespace Carbon.Readability
 {
     internal class ChildNodesTraverser
     {

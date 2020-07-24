@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 
-namespace NReadability
+namespace Carbon.Readability
 {
     public sealed class AttributeTransformationInput
     {

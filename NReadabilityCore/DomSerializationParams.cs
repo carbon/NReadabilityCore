@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NReadability
+namespace Carbon.Readability
 {
     public sealed class DomSerializationParams
     {
@@ -27,10 +27,6 @@ namespace NReadability
         /// </summary>
         public bool DontIncludeMobileSpecificMetaElements { get; set; }
 
-        /// <summary>
-        /// Determines whether a meta tag with a content-type specification will be added/replaced in the output.
-        /// </summary>
-        public bool DontIncludeDocTypeMetaElement { get; set; }
 
         /// <summary>
         /// Determines whether a meta tag with a generator specification will be added/replaced in the output.

@@ -24,53 +24,36 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
-namespace NReadability
+namespace Carbon.Readability
 {
     public static class DomExtensions
     {
-        public static XElement GetBody(this XDocument document)
+        public static XElement? GetBody(this XDocument document)
         {
-            if (document == null)
-            {
-                throw new ArgumentNullException("document");
-            }
-
-            var documentRoot = document.Root;
-
-            if (documentRoot == null)
-            {
-                return null;
-            }
-
-            return documentRoot.GetElementsByTagName("body").FirstOrDefault();
+            return document?.Root?.GetElementsByTagName("body").FirstOrDefault();
         }
 
-        public static string GetTitle(this XDocument document)
+        public static string? GetTitle(this XDocument document)
         {
-            if (document == null)
-            {
-                throw new ArgumentNullException("document");
-            }
+            var documentRoot = document?.Root;
 
-            var documentRoot = document.Root;
-
-            if (documentRoot == null)
+            if (documentRoot is null)
             {
                 return null;
             }
 
             var headElement = documentRoot.GetElementsByTagName("head").FirstOrDefault();
 
-            if (headElement == null)
+            if (headElement is null)
             {
-                return "";
+                return string.Empty;
             }
 
             var titleElement = headElement.GetChildrenByTagName("title").FirstOrDefault();
 
-            if (titleElement == null)
+            if (titleElement is null)
             {
-                return "";
+                return string.Empty;
             }
 
             return (titleElement.Value ?? "").Trim();
@@ -120,42 +103,22 @@ namespace NReadability
             return element.GetAttributeValue("style", "");
         }
 
-        public static void SetStyle(this XElement element, string style)
+        public static void SetStyle(this XElement element, string? style)
         {
             element.SetAttributeValue("style", style);
         }
 
         public static string GetAttributeValue(this XElement element, string attributeName, string defaultValue)
         {
-            if (element == null)
-            {
-                throw new ArgumentNullException("element");
-            }
-
-            if (string.IsNullOrEmpty(attributeName))
-            {
-                throw new ArgumentNullException("attributeName");
-            }
-
-            var attribute = element.Attribute(attributeName);
+            XAttribute attribute = element.Attribute(attributeName);
 
             return attribute != null
-                     ? (attribute.Value ?? defaultValue)
-                     : defaultValue;
+                ? (attribute.Value ?? defaultValue)
+                : defaultValue;
         }
 
         public static void SetAttributeValue(this XElement element, string attributeName, string value)
         {
-            if (element == null)
-            {
-                throw new ArgumentNullException("element");
-            }
-
-            if (string.IsNullOrEmpty(attributeName))
-            {
-                throw new ArgumentNullException("attributeName");
-            }
-
             if (value == null)
             {
                 var attribute = element.Attribute(attributeName);
@@ -173,16 +136,6 @@ namespace NReadability
 
         public static string GetAttributesString(this XElement element, string separator)
         {
-            if (element == null)
-            {
-                throw new ArgumentNullException("element");
-            }
-
-            if (separator == null)
-            {
-                throw new ArgumentNullException("separator");
-            }
-
             var resultSb = new StringBuilder();
             bool isFirst = true;
 
@@ -214,38 +167,23 @@ namespace NReadability
 
         public static string GetInnerHtml(this XContainer container)
         {
-            if (container == null)
-            {
-                throw new ArgumentNullException("container");
-            }
-
-            var resultSb = new StringBuilder();
+            var sb = new StringBuilder();
 
             foreach (var childNode in container.Nodes())
             {
-                resultSb.Append(childNode.ToString(SaveOptions.DisableFormatting));
+                sb.Append(childNode.ToString(SaveOptions.DisableFormatting));
             }
 
-            return resultSb.ToString();
+            return sb.ToString();
         }
 
         public static void SetInnerHtml(this XElement element, string html)
         {
-            if (element == null)
-            {
-                throw new ArgumentNullException("element");
-            }
-
-            if (html == null)
-            {
-                throw new ArgumentNullException("html");
-            }
-
             element.RemoveAll();
 
-            var tmpElement = new SgmlDomBuilder().BuildDocument(html);
+            var tmpElement = SgmlDomBuilder.BuildDocument(html);
 
-            if (tmpElement.Root == null)
+            if (tmpElement.Root is null)
             {
                 return;
             }
@@ -258,34 +196,23 @@ namespace NReadability
 
         public static IEnumerable<XElement> GetElementsByTagName(this XContainer container, string tagName)
         {
-            if (container == null)
-            {
-                throw new ArgumentNullException("container");
-            }
+            return container.Descendants().Where(e => tagName.Equals(e.Name.LocalName, StringComparison.OrdinalIgnoreCase));
+        }
 
-            if (string.IsNullOrEmpty(tagName))
-            {
-                throw new ArgumentNullException("tagName");
-            }
-
-            return container.Descendants()
-              .Where(e => tagName.Equals(e.Name.LocalName, StringComparison.OrdinalIgnoreCase));
+        public static int CountElementsByTagName(this XContainer container, string tagName)
+        {
+            return container.Descendants().Count(e => tagName.Equals(e.Name.LocalName, StringComparison.OrdinalIgnoreCase));
         }
 
         public static IEnumerable<XElement> GetChildrenByTagName(this XContainer container, string tagName)
-        {
-            if (container == null)
+        {          
+            foreach (var childEl in container.Elements())
             {
-                throw new ArgumentNullException("container");
+                if (childEl.Name?.LocalName is string localName && localName.Equals(tagName, StringComparison.OrdinalIgnoreCase))
+                {
+                    yield return childEl;
+                }
             }
-
-            if (string.IsNullOrEmpty(tagName))
-            {
-                throw new ArgumentNullException("tagName");
-            }
-
-            return container.Elements()
-              .Where(e => e.Name != null && tagName.Equals(e.Name.LocalName, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

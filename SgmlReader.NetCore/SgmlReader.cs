@@ -51,9 +51,10 @@ namespace Sgml
     /// used to maintain current state of the parser for element stack, and attributes
     /// in each element.
     /// </summary>
-    internal class HWStack
+    internal class HWStack<T>
+        where T: class
     {
-        private object[] m_items;
+        private T[] m_items;
         private int m_size;
         private int m_count;
         private readonly int m_growth;
@@ -72,14 +73,8 @@ namespace Sgml
         /// </summary>
         public int Count
         {
-            get
-            {
-                return this.m_count;
-            }
-            set
-            {
-                this.m_count = value;
-            }
+            get => this.m_count;
+            set => this.m_count = value;
         }
 
         /// <summary>
@@ -92,7 +87,7 @@ namespace Sgml
         /// </summary>
         /// <param name="i">The index of the item to retrieve.</param>
         /// <returns>The item at the requested index or null if index is out of bounds.</returns>
-        public object this[int i]
+        public T this[int i]
         {
             get
             {
@@ -108,12 +103,13 @@ namespace Sgml
         /// Removes and returns the item at the top of the stack
         /// </summary>
         /// <returns>The item at the top of the stack.</returns>
-        public object Pop()
+        public T Pop()
         {
-            this.m_count--;
-            if (this.m_count > 0)
+            m_count--;
+
+            if (m_count > 0)
             {
-                return m_items[this.m_count - 1];
+                return m_items[m_count - 1];
             }
 
             return null;
@@ -127,12 +123,12 @@ namespace Sgml
         /// This method tries to reuse a slot, if it returns null then
         /// the user has to call the other Push method.
         /// </remarks>
-        public object Push()
+        public T Push()
         {
             if (this.m_count == this.m_size)
             {
                 int newsize = this.m_size + this.m_growth;
-                object[] newarray = new object[newsize];
+                T[] newarray = new T[newsize];
                 if (this.m_items != null)
                     Array.Copy(this.m_items, newarray, this.m_size);
 
@@ -146,7 +142,6 @@ namespace Sgml
         /// Remove a specific item from the stack.
         /// </summary>
         /// <param name="i">The index of the item to remove.</param>
-        [SuppressMessage("Microsoft.Performance", "CA1811", Justification = "Kept for potential future usage.")]
         public void RemoveAt(int i)
         {
             this.m_items[i] = null;
@@ -159,7 +154,7 @@ namespace Sgml
     /// This class represents an attribute.  The AttDef is assigned
     /// from a validation process, and is used to provide default values.
     /// </summary>
-    internal class Attribute
+    internal sealed class Attribute
     {
         internal string Name;    // the atomized name.
         internal AttDef DtdType; // the AttDef of the attribute from the SGML DTD.
@@ -194,7 +189,7 @@ namespace Sgml
                         }*/
         }
 
-        public bool IsDefault => m_literalValue == null;
+        public bool IsDefault => m_literalValue is null;
     }
 
     /// <summary>
@@ -213,7 +208,7 @@ namespace Sgml
         internal ElementDecl DtdType; // the DTD type found via validation
         internal State CurrentState;
         internal bool Simulated; // tag was injected into result stream.
-        private readonly HWStack attributes = new HWStack(10);
+        private readonly HWStack<Attribute> attributes = new HWStack<Attribute>(10);
 
         /// <summary>
         /// Attribute objects are reused during parsing to reduce memory allocations, 
@@ -237,7 +232,7 @@ namespace Sgml
             // check for duplicates!
             for (int i = 0, n = this.attributes.Count; i < n; i++)
             {
-                a = (Attribute)this.attributes[i];
+                a = this.attributes[i];
                 if (string.Equals(a.Name, name, caseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
                 {
                     return null;
@@ -255,12 +250,11 @@ namespace Sgml
             return a;
         }
 
-        [SuppressMessage("Microsoft.Performance", "CA1811", Justification = "Kept for potential future usage.")]
         public void RemoveAttribute(string name)
         {
             for (int i = 0, n = this.attributes.Count; i < n; i++)
             {
-                Attribute a = (Attribute)this.attributes[i];
+                Attribute a = this.attributes[i];
                 if (string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase))
                 {
                     this.attributes.RemoveAt(i);
@@ -272,25 +266,19 @@ namespace Sgml
         {
             for (int i = 0, len = n.attributes.Count; i < len; i++)
             {
-                Attribute a = (Attribute)n.attributes[i];
+                Attribute a = n.attributes[i];
                 Attribute na = this.AddAttribute(a.Name, a.Value, a.QuoteChar, false);
                 na.DtdType = a.DtdType;
             }
         }
 
-        public int AttributeCount
-        {
-            get
-            {
-                return this.attributes.Count;
-            }
-        }
-
+        public int AttributeCount => this.attributes.Count;
+     
         public int GetAttribute(string name)
         {
             for (int i = 0, n = this.attributes.Count; i < n; i++)
             {
-                Attribute a = (Attribute)this.attributes[i];
+                Attribute a = this.attributes[i];
                 if (string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase))
                 {
                     return i;
@@ -303,7 +291,7 @@ namespace Sgml
         {
             if (i >= 0 && i < this.attributes.Count)
             {
-                Attribute a = (Attribute)this.attributes[i];
+                Attribute a = this.attributes[i];
                 return a;
             }
             return null;
@@ -335,9 +323,7 @@ namespace Sgml
     {
         /// <summary>
         /// The value returned when a namespace is queried and none has been specified.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1705", Justification = "SgmlReader's standards for constants are different to Microsoft's and in line with older C++ style constants naming conventions.  Visually, constants using this style are more easily identifiable as such.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1707", Justification = "SgmlReader's standards for constants are different to Microsoft's and in line with older C++ style constants naming conventions.  Visually, constants using this style are more easily identifiable as such.")]
+        /// </summary>   
         public const string UNDEFINED_NAMESPACE = "#unknown";
 
         private SgmlDtd m_dtd;
@@ -345,7 +331,7 @@ namespace Sgml
         private State m_state;
         private char m_partial;
         private string m_endTag;
-        private HWStack m_stack;
+        private HWStack<Node> m_stack;
         private Node m_node; // current node (except for attributes)
         // Attributes are handled separately using these members.
         private Attribute m_a;
@@ -423,7 +409,7 @@ namespace Sgml
             {
                 if (string.IsNullOrEmpty(this.m_syslit))
                 {
-                    if (this.m_docType != null && StringUtilities.EqualsIgnoreCase(this.m_docType, "html"))
+                    if (this.m_docType != null && this.m_docType.Equals("html", StringComparison.OrdinalIgnoreCase))
                     {
                         Assembly a = typeof(SgmlReader).Assembly;
                         string name = a.FullName.Split(',')[0] + ".Html.dtd";
@@ -462,7 +448,7 @@ namespace Sgml
                     _ => this.m_dtd.Name,
                 };
 
-                this.m_isHtml = StringUtilities.EqualsIgnoreCase(this.m_dtd.Name, "html");
+                this.m_isHtml = string.Equals(this.m_dtd.Name, "html", StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -484,13 +470,7 @@ namespace Sgml
         /// <summary>
         /// The root element of the document.
         /// </summary>
-        public string RootElementName
-        {
-            get
-            {
-                return m_rootElementName;
-            }
-        }
+        public string RootElementName => m_rootElementName;
 
         /// <summary>
         /// The PUBLIC identifier in the DOCTYPE tag
@@ -560,14 +540,8 @@ namespace Sgml
         /// </summary>
         public string WebProxy
         {
-            get
-            {
-                return this.m_proxy;
-            }
-            set
-            {
-                this.m_proxy = value;
-            }
+            get => this.m_proxy;
+            set => this.m_proxy = value;
         }
 
         /// <summary>
@@ -710,7 +684,7 @@ namespace Sgml
         private void Init()
         {
             this.m_state = State.Initial;
-            this.m_stack = new HWStack(10);
+            this.m_stack = new HWStack<Node>(10);
             this.m_node = Push(null, XmlNodeType.Document, null);
             this.m_node.IsEmpty = false;
             this.m_sb = new StringBuilder();
@@ -729,7 +703,7 @@ namespace Sgml
 
         private Node Push(string name, XmlNodeType nt, string value)
         {
-            Node result = (Node)m_stack.Push();
+            Node result = m_stack.Push();
             if (result == null)
             {
                 result = new Node();
@@ -746,7 +720,7 @@ namespace Sgml
             int top = this.m_stack.Count - 1;
             if (top > 0)
             {
-                Node n = (Node)m_stack[top - 1];
+                Node n = m_stack[top - 1];
                 this.m_stack[top - 1] = m_stack[top];
                 this.m_stack[top] = n;
             }
@@ -771,7 +745,7 @@ namespace Sgml
         {
             if (this.m_stack.Count > 1)
             {
-                this.m_node = (Node)this.m_stack.Pop();
+                this.m_node = this.m_stack.Pop();
             }
         }
 
@@ -780,7 +754,7 @@ namespace Sgml
             int top = this.m_stack.Count - 1;
             if (top > 0)
             {
-                return (Node)this.m_stack[top];
+                return this.m_stack[top];
             }
 
             return null;
@@ -857,7 +831,6 @@ namespace Sgml
         /// <remarks>
         /// If not positioned on a node or attribute, <see cref="UNDEFINED_NAMESPACE"/> is returned.
         /// </remarks>
-        [SuppressMessage("Microsoft.Performance", "CA1820", Justification = "Cannot use IsNullOrEmpty in a switch statement and swapping the elegance of switch for a load of 'if's is not worth it.")]
         public override string NamespaceURI
         {
             get
@@ -887,7 +860,7 @@ namespace Sgml
                             // check if a 'xmlns:prefix' attribute is defined
                             for (int i = this.m_stack.Count - 1; i > 0; --i)
                             {
-                                Node node = this.m_stack[i] as Node;
+                                Node node = this.m_stack[i];
                                 if ((node != null) && (node.NodeType == XmlNodeType.Element))
                                 {
                                     int index = node.GetAttribute("xmlns");
@@ -914,7 +887,7 @@ namespace Sgml
                                 string key = "xmlns:" + prefix;
                                 for (int i = this.m_stack.Count - 1; i > 0; --i)
                                 {
-                                    Node node = this.m_stack[i] as Node;
+                                    Node node = this.m_stack[i];
                                     if ((node != null) && (node.NodeType == XmlNodeType.Element))
                                     {
                                         int index = node.GetAttribute(key);
@@ -1030,13 +1003,7 @@ namespace Sgml
         /// Gets the base URI of the current node.
         /// </summary>
         /// <value>The base URI of the current node.</value>
-        public override string BaseURI
-        {
-            get
-            {
-                return this.m_baseUri == null ? "" : this.m_baseUri.AbsoluteUri;
-            }
-        }
+        public override string BaseURI => this.m_baseUri == null ? "" : this.m_baseUri.AbsoluteUri;
 
         /// <summary>
         /// Gets a value indicating whether the current node is an empty element (for example, &lt;MyElement/&gt;).
@@ -1100,7 +1067,7 @@ namespace Sgml
             {
                 for (int i = this.m_stack.Count - 1; i > 1; i--)
                 {
-                    Node n = (Node)this.m_stack[i];
+                    Node n = this.m_stack[i];
                     XmlSpace xs = n.Space;
                     if (xs != XmlSpace.None)
                         return xs;
@@ -1120,7 +1087,7 @@ namespace Sgml
             {
                 for (int i = this.m_stack.Count - 1; i > 1; i--)
                 {
-                    Node n = (Node)this.m_stack[i];
+                    Node n = this.m_stack[i];
                     string xmllang = n.XmlLang;
                     if (xmllang != null)
                         return xmllang;
@@ -1225,29 +1192,16 @@ namespace Sgml
         /// </summary>
         /// <param name="name">The name of the attribute to retrieve.</param>
         /// <returns>The value of the specified attribute. If the attribute is not found, a null reference (Nothing in Visual Basic) is returned. </returns>
-        public override string this[string name]
-        {
-            get
-            {
-                return GetAttribute(name);
-            }
-        }
-
+        public override string this[string name] => GetAttribute(name);
+      
         /// <summary>
         /// Gets the value of the attribute with the specified <see cref="LocalName"/> and <see cref="NamespaceURI"/>.
         /// </summary>
         /// <param name="name">The local name of the attribute.</param>
         /// <param name="namespaceURI">The namespace URI of the attribute.</param>
         /// <returns>The value of the specified attribute. If the attribute is not found, a null reference (Nothing in Visual Basic) is returned. This method does not move the reader.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1023", Justification = "This design is that of Microsoft's XmlReader class and overriding its method is merely continuing the same design.")]
-        public override string this[string name, string namespaceURI]
-        {
-            get
-            {
-                return GetAttribute(name, namespaceURI);
-            }
-        }
-
+        public override string this[string name, string namespaceURI] => GetAttribute(name, namespaceURI);
+  
         /// <summary>
         /// Moves to the atttribute with the specified <see cref="Name"/>.
         /// </summary>
@@ -1359,19 +1313,12 @@ namespace Sgml
         /// <summary>
         /// Gets whether the content is HTML or not.
         /// </summary>
-        public bool IsHtml
-        {
-            get
-            {
-                return this.m_isHtml;
-            }
-        }
+        public bool IsHtml => this.m_isHtml;
 
         /// <summary>
         /// Returns the encoding of the current entity.
         /// </summary>
         /// <returns>The encoding of the current entity.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024", Justification = "This method to get the encoding does not simply read a value, but potentially causes significant processing of the input stream.")]
         public Encoding GetEncoding()
         {
             if (this.m_current == null)
@@ -1620,7 +1567,7 @@ namespace Sgml
 
                         // In SGML DOCTYPE SYSTEM attribute is optional, but in XML it is required,
                         // therefore if there is no SYSTEM literal then add an empty one.
-                        if (this.GetAttribute("SYSTEM") == null && this.GetAttribute("PUBLIC") != null)
+                        if (this.GetAttribute("SYSTEM") is null && this.GetAttribute("PUBLIC") != null)
                         {
                             this.m_node.AddAttribute("SYSTEM", "", '"', this.m_folding == CaseFolding.None);
                         }
@@ -1689,12 +1636,13 @@ namespace Sgml
         private const string tagterm = " \t\r\n=/><";
         private const string aterm = " \t\r\n='\"/>";
         private const string avterm = " \t\r\n>";
+
         private bool ParseStartTag(char ch)
         {
             string name = null;
             if (m_state != State.PseudoStartTag)
             {
-                if (SgmlReader.tagterm.IndexOf(ch) >= 0)
+                if (tagterm.IndexOf(ch) >= 0)
                 {
                     this.m_sb.Length = 0;
                     this.m_sb.Append('<');
@@ -1813,7 +1761,7 @@ namespace Sgml
         {
             this.m_state = State.EndTag;
             this.m_current.ReadChar(); // consume '/' char.
-            string name = this.ScanName(SgmlReader.tagterm);
+            string name = this.ScanName(tagterm);
             char ch = this.m_current.SkipWhitespace();
             if (ch != '>')
             {
@@ -1827,10 +1775,10 @@ namespace Sgml
 
             // Make sure there's a matching start tag for it.                        
             bool caseInsensitive = (this.m_folding == CaseFolding.None);
-            this.m_node = (Node)this.m_stack[m_stack.Count - 1];
+            this.m_node = this.m_stack[m_stack.Count - 1];
             for (int i = this.m_stack.Count - 1; i > 0; i--)
             {
-                Node n = (Node)this.m_stack[i];
+                Node n = this.m_stack[i];
                 if (string.Equals(n.Name, name, caseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
                 {
                     this.m_endTag = n.Name;
@@ -1999,7 +1947,7 @@ namespace Sgml
         private bool ParsePI()
         {
             string name = this.m_current.ScanToken(this.m_sb, SgmlReader.piterm, false);
-            string value = null;
+            string? value = null;
             if (this.m_current.Lastchar != '?')
             {
                 // Notice this is not "?>".  This is because Office generates bogus PI's that end with "/>".
@@ -2599,7 +2547,7 @@ namespace Sgml
                     // current context.
                     for (i = top; i > 0; i--)
                     {
-                        Node n = (Node)this.m_stack[i];
+                        Node n = this.m_stack[i];
                         if (n.IsEmpty)
                             continue; // we'll have to pop this one
                         ElementDecl f = n.DtdType;
@@ -2638,7 +2586,7 @@ namespace Sgml
                 }
                 else if (i < top)
                 {
-                    Node n = (Node)this.m_stack[top];
+                    Node n = this.m_stack[top];
                     if (i == top - 1 && string.Equals(name, n.Name, StringComparison.OrdinalIgnoreCase))
                     {
                         // e.g. p not allowed inside p, not an interesting error.
@@ -2650,7 +2598,7 @@ namespace Sgml
                         for (int k = top; k >= i + 1; k--)
                         {
                             if (closing != "") closing += ",";
-                            Node n2 = (Node)this.m_stack[k];
+                            Node n2 = this.m_stack[k];
                             closing += "<" + n2.Name + ">";
                         }
                         Log("Element '{0}' not allowed inside '{1}', closing {2}.", name, n.Name, closing);

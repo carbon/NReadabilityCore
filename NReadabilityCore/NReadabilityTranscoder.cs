@@ -28,28 +28,31 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace NReadability
+namespace Carbon.Readability
 {
     /// <summary>
     /// A class that extracts main content from a HTML page.
     /// </summary>
-    public class NReadabilityTranscoder
+    public class ReadabilityTranscoder
     {
-        #region Nested types
-
         /// <summary>
         /// Used in FindNextPageLink
         /// </summary>
         private class LinkData
         {
-            public float Score;
-            public string LinkText;
-            public string LinkHref;
+            public LinkData(float score, string linkText, string linkHref)
+            {
+                Score = score;
+                LinkText = linkText;
+                LinkHref = linkHref;
+            }
+
+            public float Score { get; set; }
+            public string LinkText { get; set; }
+            public string LinkHref { get; set; }
         }
 
-        #endregion
-
-        private static readonly string _ReadabilityStylesheetResourceName = Assembly.GetAssembly(typeof(NReadabilityTranscoder)).FullName.Split(',')[0] + ".Resources.readability.css";
+        private static readonly string _ReadabilityStylesheetResourceName = Assembly.GetAssembly(typeof(ReadabilityTranscoder)).FullName.Split(',')[0] + ".Resources.readability.css";
 
         #region Algorithm constants
 
@@ -153,7 +156,6 @@ namespace NReadability
 
         #region Helper instance fields
 
-        private readonly SgmlDomBuilder _sgmlDomBuilder;
         private readonly SgmlDomSerializer _sgmlDomSerializer;
         private readonly Dictionary<XElement, float> _elementsScores;
 
@@ -165,7 +167,7 @@ namespace NReadability
         #region Constructor(s)
 
         /// <summary>
-        /// Initializes a new instance of NReadabilityTranscoder. Allows setting all options.
+        /// Initializes a new instance of ReadabilityTranscoder. Allows setting all options.
         /// </summary>
         /// <param name="dontStripUnlikelys">Determines whether elements that are unlikely to be a part of main content will be removed.</param>
         /// <param name="dontNormalizeSpacesInTextContent">Determines whether spaces in InnerText properties of elements will be normalized automatically (eg. whether double spaces will be replaced with single spaces).</param>
@@ -173,7 +175,7 @@ namespace NReadability
         /// <param name="readingStyle">Styling for the extracted article.</param>
         /// <param name="readingMargin">Margin for the extracted article.</param>
         /// <param name="readingSize">Font size for the extracted article.</param>
-        private NReadabilityTranscoder(
+        private ReadabilityTranscoder(
           bool dontStripUnlikelys,
           bool dontNormalizeSpacesInTextContent,
           bool dontWeightClasses,
@@ -188,26 +190,25 @@ namespace NReadability
             _readingMargin = readingMargin;
             _readingSize = readingSize;
 
-            _sgmlDomBuilder = new SgmlDomBuilder();
             _sgmlDomSerializer = new SgmlDomSerializer();
             _elementsScores = new Dictionary<XElement, float>();
         }
 
         /// <summary>
-        /// Initializes a new instance of NReadabilityTranscoder. Allows setting reading options.
+        /// Initializes a new instance of ReadabilityTranscoder. Allows setting reading options.
         /// </summary>
         /// <param name="readingStyle">Styling for the extracted article.</param>
         /// <param name="readingMargin">Margin for the extracted article.</param>
         /// <param name="readingSize">Font size for the extracted article.</param>
-        public NReadabilityTranscoder(ReadingStyle readingStyle, ReadingMargin readingMargin, ReadingSize readingSize)
+        public ReadabilityTranscoder(ReadingStyle readingStyle, ReadingMargin readingMargin, ReadingSize readingSize)
           : this(false, false, false, readingStyle, readingMargin, readingSize)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of NReadabilityTranscoder.
+        /// Initializes a new instance of ReadabilityTranscoder.
         /// </summary>
-        public NReadabilityTranscoder()
+        public ReadabilityTranscoder()
           : this(DefaultReadingStyle, DefaultReadingMargin, DefaultReadingSize)
         {
         }
@@ -219,20 +220,19 @@ namespace NReadability
         /// <summary>
         /// Extracts article content from an HTML page.
         /// </summary>
-        /// <param name="transcodingInput">An object containing input parameters, i.a. html content to be processed.</param>
+        /// <param name="request">An object containing input parameters, i.a. html content to be processed.</param>
         /// <returns>An object containing transcoding result, i.a. extracted content and title.</returns>
-        public TranscodingResult Transcode(TranscodingInput transcodingInput)
+        public TranscodeResult Transcode(TranscodeRequest request)
         {
-            if (transcodingInput is null)
+            if (request is null)
             {
-                throw new ArgumentNullException(nameof(transcodingInput));
+                throw new ArgumentNullException(nameof(request));
             }
-
 
             XDocument transcodedXmlDocument =
               TranscodeToXml(
-                transcodingInput.HtmlContent,
-                transcodingInput.Url,
+                request.HtmlContent,
+                request.Url,
                 out bool contentExtracted,
                 out string extractedTitle,
                 out string nextPageUrl);
@@ -240,82 +240,20 @@ namespace NReadability
             string transcodedContent =
               _sgmlDomSerializer.SerializeDocument(
                 transcodedXmlDocument,
-                transcodingInput.DomSerializationParams);
+                request.DomSerializationParams);
 
             bool titleExtracted = !string.IsNullOrEmpty(extractedTitle);
 
             return
-              new TranscodingResult(contentExtracted, titleExtracted)
+              new TranscodeResult(contentExtracted, titleExtracted)
               {
-                  ExtractedContent = transcodedContent,
-                  ExtractedTitle = extractedTitle,
+                  Content = transcodedContent,
+                  Title = extractedTitle,
                   NextPageUrl = nextPageUrl,
               };
         }
 
-        /// <summary>
-        /// Extracts main article content from a HTML page.
-        /// </summary>
-        /// <param name="htmlContent">HTML markup to process.</param>
-        /// <param name="url">Url from which the content was downloaded. Used to resolve relative urls. Can be null.</param>
-        /// <param name="domSerializationParams">Contains parameters that modify the behaviour of the output serialization.</param>
-        /// <param name="mainContentExtracted">Determines whether the content has been extracted (if the article is not empty).</param>
-        /// <param name="nextPageUrl">If the content contains a link to a subsequent page, it is returned here.</param>
-        /// <returns>HTML markup containing extracted article content.</returns>
-        [Obsolete("Use TranscodingResult Transcode(TranscodingInput) method.")]
-        public string Transcode(string htmlContent, string url, DomSerializationParams domSerializationParams, out bool mainContentExtracted, out string nextPageUrl)
-        {
-            XDocument document =
-              TranscodeToXml(
-                htmlContent,
-                url,
-                out mainContentExtracted,
-                out string extractedTitle,
-                out nextPageUrl);
-
-            return _sgmlDomSerializer.SerializeDocument(document, domSerializationParams);
-        }
-
-        /// <summary>
-        /// Extracts main article content from a HTML page.
-        /// </summary>
-        /// <param name="htmlContent">HTML markup to process.</param>
-        /// <param name="url">Url from which the content was downloaded. Used to resolve relative urls. Can be null.</param>
-        /// <param name="mainContentExtracted">Determines whether the content has been extracted (if the article is not empty).</param>
-        /// <param name="nextPageUrl">If the content contains a link to a subsequent page, it is returned here.</param>
-        /// <returns>HTML markup containing extracted article content.</returns>
-        [Obsolete("Use TranscodingResult Transcode(TranscodingInput) method.")]
-        public string Transcode(string htmlContent, string url, out bool mainContentExtracted, out string nextPageUrl)
-        {
-            return Transcode(htmlContent, url, DomSerializationParams.CreateDefault(), out mainContentExtracted, out nextPageUrl);
-        }
-
-        /// <summary>
-        /// Extracts main article content from a HTML page.
-        /// </summary>
-        /// <param name="htmlContent">HTML markup to process.</param>
-        /// <param name="url">Url from which the content was downloaded. Used to resolve relative urls. Can be null.</param>
-        /// <param name="mainContentExtracted">Determines whether the content has been extracted (if the article is not empty).</param>    
-        /// <returns>HTML markup containing extracted article content.</returns>
-        [Obsolete("Use TranscodingResult Transcode(TranscodingInput) method.")]
-        public string Transcode(string htmlContent, string url, out bool mainContentExtracted)
-        {
-            return Transcode(htmlContent, url, DomSerializationParams.CreateDefault(), 
-                out mainContentExtracted, 
-                out string nextPageUrl);
-        }
-
-        /// <summary>
-        /// Extracts main article content from a HTML page.
-        /// </summary>
-        /// <param name="htmlContent">HTML markup to process.</param>
-        /// <param name="mainContentExtracted">Determines whether the content has been extracted (if the article is not empty).</param>    
-        /// <returns>HTML markup containing extracted article content.</returns>
-        [Obsolete("Use TranscodingResult Transcode(TranscodingInput) method.")]
-        public string Transcode(string htmlContent, out bool mainContentExtracted)
-        {
-            return Transcode(htmlContent, null, out mainContentExtracted, out string nextPageUrl);
-        }
+      
 
         #endregion
 
@@ -330,14 +268,17 @@ namespace NReadability
         /// <param name="extractedTitle">Will contain article title (if we were able to extract it).</param>
         /// <param name="nextPageUrl">If the content contains a link to a subsequent page, it is returned here.</param>
         /// <returns>An XDocument containing extracted article content.</returns>
-        internal XDocument TranscodeToXml(string htmlContent, string url, out bool mainContentExtracted, out string extractedTitle, out string nextPageUrl)
+        internal XDocument TranscodeToXml(string htmlContent, string? url, 
+            out bool mainContentExtracted, 
+            out string extractedTitle,
+            out string? nextPageUrl)
         {
             if (string.IsNullOrEmpty(htmlContent))
             {
-                throw new ArgumentNullException("htmlContent");
+                throw new ArgumentNullException(nameof(htmlContent));
             }
 
-            XDocument document = _sgmlDomBuilder.BuildDocument(htmlContent);
+            XDocument document = SgmlDomBuilder.BuildDocument(htmlContent);
 
             PrepareDocument(document);
 
@@ -354,7 +295,7 @@ namespace NReadability
                 nextPageUrl = FindNextPageLink(document.GetBody(), url);
             }
 
-            XElement articleTitleElement = ExtractArticleTitle(document);
+            XElement? articleTitleElement = ExtractArticleTitle(document);
             XElement articleContentElement = ExtractArticleContent(document, url);
 
             GlueDocument(document, articleTitleElement, articleContentElement);
@@ -444,7 +385,7 @@ namespace NReadability
 
                 if (!possiblePagesByLink.Keys.Contains(linkHref))
                 {
-                    possiblePagesByLink[linkHref] = new LinkData { Score = 0, LinkHref = linkHref, LinkText = linkText };
+                    possiblePagesByLink[linkHref] = new LinkData(0, linkText, linkHref);
                 }
                 else
                 {
@@ -609,7 +550,7 @@ namespace NReadability
         /// </summary>    
         internal string FindBaseUrl(string url)
         {
-            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri urlUri))
+            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? urlUri))
             {
                 return url;
             }
@@ -658,7 +599,7 @@ namespace NReadability
                 bool del = (i < 2 && Regex.IsMatch(segment, @"^[\d]{1,2}$"));
 
                 /* If this is the first segment and it's just "index," remove it. */
-                if (i == 0 && segment.ToLower() == "index")
+                if (i == 0 && string.Equals(segment, "index", StringComparison.OrdinalIgnoreCase))
                 {
                     del = true;
                 }
@@ -680,7 +621,7 @@ namespace NReadability
             /* This is our final, cleaned, base article URL. */
             cleanedSegments.Reverse();
 
-            return string.Format("{0}://{1}{2}", protocol, hostname, String.Join("/", cleanedSegments.ToArray()));
+            return string.Format("{0}://{1}{2}", protocol, hostname, string.Join('/', cleanedSegments));
         }
 
         internal void PrepareDocument(XDocument document)
@@ -703,16 +644,15 @@ namespace NReadability
             /* Remove all scripts that are not readability. */
             elementsToRemove.Clear();
 
-            rootElement.GetElementsByTagName("script")
-              .ForEach(scriptElement =>
-                         {
-                             string scriptSrc = scriptElement.GetAttributeValue("src", null);
+            rootElement.GetElementsByTagName("script").ForEach(scriptElement =>
+            {
+                string scriptSrc = scriptElement.GetAttributeValue("src", null);
 
-                             if (string.IsNullOrEmpty(scriptSrc) || scriptSrc.LastIndexOf("readability") == -1)
-                             {
-                                 elementsToRemove.Add(scriptElement);
-                             }
-                         });
+                if (string.IsNullOrEmpty(scriptSrc) || scriptSrc.LastIndexOf("readability") == -1)
+                {
+                    elementsToRemove.Add(scriptElement);
+                }
+            });
 
             RemoveElements(elementsToRemove);
 
@@ -725,7 +665,7 @@ namespace NReadability
             elementsToRemove.Clear();
             elementsToRemove.AddRange(
               rootElement.GetElementsByTagName("link")
-                .Where(element => element.GetAttributeValue("rel", "").Trim().ToLower() == "stylesheet"
+                .Where(element => element.GetAttributeValue("rel", "").AsSpan().Trim().Equals("stylesheet", StringComparison.OrdinalIgnoreCase)
                                && element.GetAttributeValue("href", "").LastIndexOf("readability") == -1));
             RemoveElements(elementsToRemove);
 
@@ -744,7 +684,7 @@ namespace NReadability
 
             IEnumerable<XElement> anchorElements =
               rootElement.GetElementsByTagName("a")
-                .Where(aElement => aElement.Attribute("name") != null && aElement.Attribute("href") == null);
+                .Where(aElement => aElement.Attribute("name") != null && aElement.Attribute("href") is null);
 
             elementsToRemove.AddRange(anchorElements);
             RemoveElements(elementsToRemove);
@@ -759,7 +699,7 @@ namespace NReadability
             documentBody.SetInnerHtml(bodyInnerHtml);
         }
 
-        internal XElement ExtractArticleTitle(XDocument document)
+        internal XElement? ExtractArticleTitle(XDocument document)
         {
             XElement documentBody = GetOrCreateBody(document);
             string documentTitle = document.GetTitle() ?? "";
@@ -842,7 +782,7 @@ namespace NReadability
             return articleContentElement;
         }
 
-        internal void GlueDocument(XDocument document, XElement articleTitleElement, XElement articleContentElement)
+        internal void GlueDocument(XDocument document, XElement? articleTitleElement, XElement articleContentElement)
         {
             XElement documentBody = GetOrCreateBody(document);
 
@@ -992,9 +932,7 @@ namespace NReadability
 
                         if (childNode != null)
                         {
-                            XElement childElement = childNode as XElement;
-
-                            if (childElement != null && "p".Equals(GetElementName(childElement), StringComparison.OrdinalIgnoreCase))
+                            if (childNode is XElement childElement && "p".Equals(GetElementName(childElement), StringComparison.OrdinalIgnoreCase))
                             {
                                 // we have a div with a single child element that is a paragraph - let's remove the div and attach the paragraph to the div's parent
                                 XElement parentElement = element.Parent;
@@ -1010,12 +948,11 @@ namespace NReadability
                 }).Traverse(rootElement);
         }
 
-        internal IEnumerable<XElement> FindCandidatesForArticleContent(XDocument document, string articleContentElementHint = null)
+        internal IEnumerable<XElement> FindCandidatesForArticleContent(XDocument document, string? articleContentElementHint = null)
         {
             if (!string.IsNullOrEmpty(articleContentElementHint))
             {
-                XElement articleContentElement =
-                  TryFindArticleContentElement(document, articleContentElementHint);
+                XElement articleContentElement = TryFindArticleContentElement(document, articleContentElementHint);
 
                 if (articleContentElement != null)
                 {
@@ -1038,7 +975,7 @@ namespace NReadability
                 }
 
                 XElement parentElement = paraElement.Parent;
-                XElement grandParentElement = parentElement?.Parent;
+                XElement? grandParentElement = parentElement?.Parent;
                 int score = 1; // 1 point for having a paragraph
 
                 // Add points for any comma-segments within this paragraph.
@@ -1334,11 +1271,6 @@ namespace NReadability
 
         internal string GetInnerText(XNode node, bool dontNormalizeSpaces)
         {
-            if (node == null)
-            {
-                throw new ArgumentNullException("node");
-            }
-
             string result;
 
             if (node is XElement element)
@@ -1354,7 +1286,9 @@ namespace NReadability
                 throw new NotSupportedException(string.Format("Nodes of type '{0}' are not supported.", node.GetType()));
             }
 
-            result = (result ?? "").Trim();
+            if (result is null) return string.Empty;
+
+            result = result.Trim();
 
             if (!dontNormalizeSpaces)
             {
@@ -1443,10 +1377,10 @@ namespace NReadability
 
                 if (GetSegmentsCount(elementInnerText, ',') < _MinCommaSegments)
                 {
-                    int psCount = element.GetElementsByTagName("p").Count();
-                    int imgsCount = element.GetElementsByTagName("img").Count();
-                    int lisCount = element.GetElementsByTagName("li").Count();
-                    int inputsCount = element.GetElementsByTagName("input").Count();
+                    int psCount = element.CountElementsByTagName("p");
+                    int imgsCount = element.CountElementsByTagName("img");
+                    int lisCount = element.CountElementsByTagName("li");
+                    int inputsCount = element.CountElementsByTagName("input");
 
                     // while counting embeds we omit video-embeds
                     int embedsCount =
@@ -1455,9 +1389,11 @@ namespace NReadability
 
                     float linksDensity = GetLinksDensity(element);
                     int innerTextLength = elementInnerText.Length;
-                    string elementNameLower = elementName.Trim().ToLower();
+
+                    var tagName = elementName.AsSpan().Trim();
+
                     bool remove = (imgsCount > psCount)
-                               || (lisCount - _LisCountTreshold > psCount && elementNameLower != "ul" && elementNameLower != "ol")
+                               || (lisCount - _LisCountTreshold > psCount && !tagName.Equals("ul", StringComparison.OrdinalIgnoreCase) && !tagName.Equals("ol", StringComparison.OrdinalIgnoreCase))
                                || (inputsCount > psCount / 3)
                                || (innerTextLength < _MinInnerTextLength && (imgsCount == 0 || imgsCount > _MaxImagesInShortSegmentsCount))
                                || (weight < _ClassWeightTreshold && linksDensity > _MaxDensityForElementsWithSmallerClassWeight)
@@ -1528,7 +1464,7 @@ namespace NReadability
               suffixSB,
               (sb, ch) =>
               {
-                  if (Char.IsUpper(ch))
+                  if (char.IsUpper(ch))
                   {
                       if (wasUpperCaseCharacterSeen)
                       {
@@ -1537,7 +1473,7 @@ namespace NReadability
 
                       wasUpperCaseCharacterSeen = true;
 
-                      sb.Append(Char.ToLower(ch));
+                      sb.Append(char.ToLower(ch));
                   }
                   else
                   {
@@ -1556,7 +1492,7 @@ namespace NReadability
 
         private static XElement GetOrCreateBody(XDocument document)
         {
-            XElement documentBody = document.GetBody();
+            XElement? documentBody = document.GetBody();
 
             if (documentBody == null)
             {
@@ -1598,7 +1534,7 @@ namespace NReadability
             {
                 string attributeValue = element.GetAttributeValue(attributeName, null);
 
-                if (attributeValue == null)
+                if (attributeValue is null)
                 {
                     continue;
                 }
@@ -1615,7 +1551,7 @@ namespace NReadability
                     }
                     else
                     {
-                        attributeTransformationResult = new AttributeTransformationResult { TransformedValue = attributeValue };
+                        attributeTransformationResult = new AttributeTransformationResult(attributeValue);
                     }
 
                     element.SetAttributeValue(attributeName, attributeTransformationResult.TransformedValue);
@@ -1630,7 +1566,7 @@ namespace NReadability
 
         private static string ResolveElementUrl(string url, string articleUrl)
         {
-            if (url == null)
+            if (url is null)
             {
                 throw new ArgumentNullException();
             }
@@ -1640,7 +1576,7 @@ namespace NReadability
                 return url;
             }
 
-            if (!Uri.TryCreate(articleUrl, UriKind.Absolute, out Uri baseUri))
+            if (!Uri.TryCreate(articleUrl, UriKind.Absolute, out Uri? baseUri))
             {
                 return url;
             }
@@ -1651,7 +1587,7 @@ namespace NReadability
                 return baseUri.Scheme + "://" + baseUri.Host + baseUri.AbsolutePath + url;
             }
 
-            if (Uri.TryCreate(baseUri, url, out Uri absoluteUri))
+            if (Uri.TryCreate(baseUri, url, out Uri? absoluteUri))
             {
                 return absoluteUri.OriginalString;
             }
@@ -1684,13 +1620,11 @@ namespace NReadability
                 return false;
             }
 
-            XNode childNode = element.Nodes().SingleOrNone();
+            XNode? childNode = element.Nodes().SingleOrNone();
 
             if (childNode != null)
             {
-                XElement childElement = childNode as XElement;
-
-                if (childElement != null
+                if (childNode is XElement childElement
                  && "p".Equals(GetElementName(childElement), StringComparison.OrdinalIgnoreCase))
                 {
                     // we have a div with a single child element that is a paragraph
@@ -1707,7 +1641,7 @@ namespace NReadability
               transcodedXmlDocument.Root
                 .GetElementsByTagName("h1").FirstOrDefault();
 
-            string extractedTitle = firstH1Element?.Value;
+            string? extractedTitle = firstH1Element?.Value;
 
             if (!string.IsNullOrEmpty(extractedTitle))
             {
@@ -1740,11 +1674,11 @@ namespace NReadability
               .FirstOrDefault();
         }
 
-        private static string GetArticleContentElementHint(string url)
+        private static string? GetArticleContentElementHint(string url)
         {
             if (string.IsNullOrEmpty(url))
             {
-                throw new ArgumentException("Argument can't be null nor empty.", "url");
+                throw new ArgumentException("Argument can't be null nor empty.", nameof(url));
             }
 
             url = url.Trim();
@@ -1794,15 +1728,13 @@ namespace NReadability
 
         #endregion
 
-        #region Properties
-
         ///<summary>
         /// A function to transform the value of 'src' attribute on 'img' elements. Can be null.
         ///</summary>
         public Func<AttributeTransformationInput, AttributeTransformationResult> ImageSourceTranformer
         {
-            get { return _imageSourceTranformer; }
-            set { _imageSourceTranformer = value; }
+            get => _imageSourceTranformer;
+            set => _imageSourceTranformer = value;
         }
 
         ///<summary>
@@ -1810,10 +1742,8 @@ namespace NReadability
         ///</summary>
         public Func<AttributeTransformationInput, AttributeTransformationResult> AnchorHrefTranformer
         {
-            get { return _anchorHrefTransformer; }
-            set { _anchorHrefTransformer = value; }
+            get => _anchorHrefTransformer;
+            set => _anchorHrefTransformer = value;
         }
-
-        #endregion
     }
 }

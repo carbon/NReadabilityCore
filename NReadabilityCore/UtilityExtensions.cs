@@ -21,7 +21,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace NReadability
+namespace Carbon.Readability
 {
     internal static class UtilityExtensions
     {

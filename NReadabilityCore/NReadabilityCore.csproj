@@ -1,28 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Authors>f14shm4n</Authors>
-    <Description>This is an upgrade of the NReadability library to the .NetStandard 2.0. Original repository: https://github.com/marek-stoj/NReadability</Description>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/f14shm4n/NReadabilityCore</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/f14shm4n/NReadabilityCore</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Html;Readability;NReadability;NetStandard;</PackageTags>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.0.0</Version>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Resources\readability.css" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\readability.css" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\SgmlReader.NetCore\SgmlReader.NetCore.csproj" />
-  </ItemGroup>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup />
 </Project>

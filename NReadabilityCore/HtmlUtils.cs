@@ -1,10 +1,10 @@
 using System;
 
-namespace NReadability
+namespace Carbon.Readability
 {
     public static class HtmlUtils
     {
-        public static string RemoveScriptTags(string htmlContent)
+        public static ReadOnlySpan<char> RemoveScriptTags(ReadOnlySpan<char> htmlContent)
         {
             if (htmlContent == null)
             {
@@ -23,16 +23,18 @@ namespace NReadability
                 return htmlContent;
             }
 
-            int indexOfScriptTagEnd = htmlContent.IndexOf("</script>", indexOfScriptTagStart, StringComparison.OrdinalIgnoreCase);
+            int indexOfScriptTagEnd = htmlContent.Slice(indexOfScriptTagStart).IndexOf("</script>", StringComparison.OrdinalIgnoreCase);
 
             if (indexOfScriptTagEnd == -1)
             {
-                return htmlContent.Substring(0, indexOfScriptTagStart);
+                return htmlContent.Slice(0, indexOfScriptTagStart);
             }
 
             string strippedHtmlContent =
-              htmlContent.Substring(0, indexOfScriptTagStart) +
-              htmlContent.Substring(indexOfScriptTagEnd + "</script>".Length);
+                string.Concat(
+                    htmlContent.Slice(0, indexOfScriptTagStart),
+                    htmlContent.Slice(indexOfScriptTagStart + indexOfScriptTagEnd + "</script>".Length)
+               );
 
             return RemoveScriptTags(strippedHtmlContent);
         }

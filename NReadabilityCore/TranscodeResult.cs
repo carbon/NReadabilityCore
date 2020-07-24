@@ -1,11 +1,21 @@
-﻿namespace NReadability
+namespace Carbon.Readability
 {
-    public class TranscodeResult
+    public sealed class TranscodeResult
     {
-        public string Title { get; set; }
+        public TranscodeResult(bool contentExtracted, bool titleExtracted)
+        {
+            ContentExtracted = contentExtracted;
+            TitleExtracted = titleExtracted;
+        }
 
-        public string Content { get; set; }
+        public bool ContentExtracted { get; private set; }
 
-        public bool MainContentExtracted { get; set; }
+        public bool TitleExtracted { get; private set; }
+
+        public string? Content { get; set; }
+
+        public string? Title { get; set; }
+
+        public string? NextPageUrl { get; set; }
     }
 }

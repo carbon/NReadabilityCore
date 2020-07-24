@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace NReadability.Tests
+namespace Carbon.Readability.Tests
 {
   public static class MyAssert
   {

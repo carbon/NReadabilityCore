@@ -28,10 +28,10 @@ using System.Threading.Tasks;
 
 using NUnit.Framework;
 
-namespace NReadability.Tests
+namespace Carbon.Readability.Tests
 {
     [TestFixture]
-    public class NReadabilityWebTranscoderTests
+    public class ReadabilityWebTranscoderTests
     {
         #region Test URLs
 
@@ -157,8 +157,8 @@ namespace NReadability.Tests
 
             var fetcher = new RealUrlFetcher();
 
-            var nReadabilityTranscoder = new NReadabilityTranscoder();
-            var nReadabilityWebTranscoder = new NReadabilityWebTranscoder(nReadabilityTranscoder, fetcher);
+            var nReadabilityTranscoder = new ReadabilityTranscoder();
+            var nReadabilityWebTranscoder = new ReadabilityWebTranscoder(nReadabilityTranscoder, fetcher);
 
             var webTranscodingInput = new WebTranscodingInput("https://www.newyorker.com/culture/postscript/a-few-words-about-jerry-stiller");
 
@@ -167,7 +167,7 @@ namespace NReadability.Tests
             Assert.IsTrue(webTranscodingResult.ContentExtracted);
 
 
-            string extractedContent = webTranscodingResult.ExtractedContent;
+            string extractedContent = webTranscodingResult.Content;
 
             File.WriteAllText(
               Path.Combine(outputDir, string.Format("SampleOutput_newyorker.html")),
@@ -186,8 +186,8 @@ namespace NReadability.Tests
             string initialUrl = urls[0];
 
             var fetcher = new FileBasedUrlFetcherStub(sampleInputNumber, urls);
-            var nReadabilityTranscoder = new NReadabilityTranscoder();
-            var nReadabilityWebTranscoder = new NReadabilityWebTranscoder(nReadabilityTranscoder, fetcher);
+            var nReadabilityTranscoder = new ReadabilityTranscoder();
+            var nReadabilityWebTranscoder = new ReadabilityWebTranscoder(nReadabilityTranscoder, fetcher);
 
             var webTranscodingInput = new WebTranscodingInput(initialUrl);
 
@@ -200,7 +200,7 @@ namespace NReadability.Tests
                 Directory.CreateDirectory(outputDir);
             }
 
-            string extractedContent = webTranscodingResult.ExtractedContent;
+            string extractedContent = webTranscodingResult.Content;
 
             File.WriteAllText(
               Path.Combine(outputDir, string.Format("SampleOutput_{0}.html", sampleInputNumberStr)),
@@ -322,9 +322,9 @@ namespace NReadability.Tests
             const string expectedTitle = "Some title ¹ê³ó¿Ÿñæ";
             const string htmlContent = "<html><head><title>" + expectedTitle + "</title></head><body></body></html>";
 
-            var nReadabilityTranscoder = new NReadabilityTranscoder();
+            var nReadabilityTranscoder = new ReadabilityTranscoder();
             var urlFetcher = new SimpleUrlFetcherStub(htmlContent);
-            var nReadabilityWebTranscoder = new NReadabilityWebTranscoder(nReadabilityTranscoder, urlFetcher);
+            var nReadabilityWebTranscoder = new ReadabilityWebTranscoder(nReadabilityTranscoder, urlFetcher);
 
             var webTranscodingInput = new WebTranscodingInput("http://dummy.com/");
 
@@ -333,7 +333,7 @@ namespace NReadability.Tests
 
             // assert
             Assert.IsTrue(webTranscodingResult.TitleExtracted);
-            Assert.AreEqual(expectedTitle, webTranscodingResult.ExtractedTitle);
+            Assert.AreEqual(expectedTitle, webTranscodingResult.Title);
         }
     }
 }

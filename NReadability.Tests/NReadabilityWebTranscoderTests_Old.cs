@@ -26,11 +26,11 @@ using System.Threading.Tasks;
 
 using NUnit.Framework;
 
-namespace NReadability.Tests
+namespace Carbon.Readability.Tests
 {
     // TODO IMM HI: remove when we get rid of obsolete NReadabilityWebTranscoder.Transcode(...) methods
     [TestFixture]
-    public class NReadabilityWebTranscoderTests_Old
+    public class ReadabilityWebTranscoderTests_Old
     {
         /* This provides the list of URLs for the different test imports */
 
@@ -94,8 +94,8 @@ namespace NReadability.Tests
             string initialUrl = urls[0];
 
             var fetcher = new FileBasedUrlFetcherStub(sampleInputNumber, urls);
-            var _nReadabilityTranscoder = new NReadabilityTranscoder();
-            var _nReadabilityWebTranscoder = new NReadabilityWebTranscoder(_nReadabilityTranscoder, fetcher);
+            var _nReadabilityTranscoder = new ReadabilityTranscoder();
+            var _nReadabilityWebTranscoder = new ReadabilityWebTranscoder(_nReadabilityTranscoder, fetcher);
 
             var result = await _nReadabilityWebTranscoder.TranscodeAsync(initialUrl);
 
@@ -182,7 +182,7 @@ namespace NReadability.Tests
                     throw new NotSupportedException("Unknown sample input number (" + sampleInputNumber + "). Have you added another sample input? If so, then add appropriate asserts here as well.");
             }
 
-            Assert.IsTrue(result.MainContentExtracted);
+            Assert.IsTrue(result.ContentExtracted);
         }
     }
 }

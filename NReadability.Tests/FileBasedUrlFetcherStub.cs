@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace NReadability.Tests
+namespace Carbon.Readability.Tests
 {
   /// <summary>
   /// Stubs UrlFetcher to provide sample html documents from disk.

@@ -1,6 +1,6 @@
 using System;
 
-namespace NReadability
+namespace Carbon.Readability
 {
     public sealed class WebTranscodingInput
     {

@@ -1,233 +1,159 @@
 ﻿using NUnit.Framework;
 
-namespace NReadability.Tests
+namespace Carbon.Readability.Tests
 {
-  [TestFixture]
-  public class SgmlDomSerializerTests
-  {
-    private SgmlDomSerializer _sgmlDomSerializer;
-    private SgmlDomBuilder _sgmlDomBuilder;
-
-    #region SetUp and TearDown
-
-    [SetUp]
-    public void SetUp()
+    [TestFixture]
+    public class SgmlDomSerializerTests
     {
-      _sgmlDomSerializer = new SgmlDomSerializer();
-      _sgmlDomBuilder = new SgmlDomBuilder();
-    }
+        private SgmlDomSerializer _sgmlDomSerializer;
 
-    #endregion
-
-    #region Tests
-
-    [Test]
-    public void Serializer_adds_HandheldFrienly_meta_element_if_DontIncludeMobileSpecificElements_is_false()
-    {
-      // arrange
-      const string htmlContent = "<html><head></head><body></body></html>";
-      
-      var xDocument = _sgmlDomBuilder.BuildDocument(htmlContent);
-
-      var domSerializationParams =
-        new DomSerializationParams
-          {
-            DontIncludeMobileSpecificMetaElements = false,
-          };
-
-      // act
-      string serializedHtmlContent =
-        _sgmlDomSerializer.SerializeDocument(xDocument, domSerializationParams);
-
-      // assert
-      AssertHandheldFriendlyMetaElementPresence(serializedHtmlContent, true);
-    }
-
-    [Test]
-    public void Serializer_removes_viewport_meta_element_if_DontIncludeMobileSpecificElements_is_false()
-    {
-      // arrange
-      const string htmlContent = "<html><head><meta name=\"viewport\" content=\"width=1100\" /></head><body></body></html>";
-
-      var xDocument = _sgmlDomBuilder.BuildDocument(htmlContent);
-
-      var domSerializationParams =
-        new DomSerializationParams
+        [SetUp]
+        public void SetUp()
         {
-          DontIncludeMobileSpecificMetaElements = false,
-        };
+            _sgmlDomSerializer = new SgmlDomSerializer();
+        }
 
-      // act
-      string serializedHtmlContent =
-        _sgmlDomSerializer.SerializeDocument(xDocument, domSerializationParams);
+        #region Tests
 
-      // assert
-      AssertViewportMetaElementPresence(serializedHtmlContent, false);
-    }
-
-    [Test]
-    public void Serializer_removes_viewport_meta_element_if_DontIncludeMobileSpecificElements_is_true()
-    {
-      // arrange
-      const string htmlContent = "<html><head><meta name=\"viewport\" content=\"width=1100\" /></head><body></body></html>";
-
-      var xDocument = _sgmlDomBuilder.BuildDocument(htmlContent);
-
-      var domSerializationParams =
-        new DomSerializationParams
+        [Test]
+        public void Serializer_removes_viewport_meta_element_if_DontIncludeMobileSpecificElements_is_false()
         {
-          DontIncludeMobileSpecificMetaElements = true,
-        };
+            // arrange
+            const string htmlContent = "<html><head><meta name=\"viewport\" content=\"width=1100\" /></head><body></body></html>";
 
-      // act
-      string serializedHtmlContent =
-        _sgmlDomSerializer.SerializeDocument(xDocument, domSerializationParams);
+            var xDocument = SgmlDomBuilder.BuildDocument(htmlContent);
 
-      // assert
-      AssertViewportMetaElementPresence(serializedHtmlContent, false);
-    }
+            var domSerializationParams =
+              new DomSerializationParams
+              {
+                  DontIncludeMobileSpecificMetaElements = false,
+              };
 
-    [Test]
-    public void Serializer_removes_HandheldFriendly_meta_element_if_DontIncludeMobileSpecificElements_is_true()
-    {
-      // arrange
-      const string htmlContent = "<html><head><meta name=\"HandheldFriendly\" content=\"true\" /></head><body></body></html>";
+            // act
+            string serializedHtmlContent =
+              _sgmlDomSerializer.SerializeDocument(xDocument, domSerializationParams);
 
-      AssertHandheldFriendlyMetaElementPresence(htmlContent, true);
+            // assert
+            AssertViewportMetaElementPresence(serializedHtmlContent, false);
+        }
 
-      var xDocument = _sgmlDomBuilder.BuildDocument(htmlContent);
-
-      var domSerializationParams =
-        new DomSerializationParams
+        [Test]
+        public void Serializer_removes_viewport_meta_element_if_DontIncludeMobileSpecificElements_is_true()
         {
-          DontIncludeMobileSpecificMetaElements = true,
-        };
+            // arrange
+            const string htmlContent = "<html><head><meta name=\"viewport\" content=\"width=1100\" /></head><body></body></html>";
 
-      // act
-      string serializedHtmlContent =
-        _sgmlDomSerializer.SerializeDocument(xDocument, domSerializationParams);
+            var xDocument = SgmlDomBuilder.BuildDocument(htmlContent);
 
-      // assert
-      AssertHandheldFriendlyMetaElementPresence(serializedHtmlContent, false);
-    }
+            var domSerializationParams =
+              new DomSerializationParams
+              {
+                  DontIncludeMobileSpecificMetaElements = true,
+              };
 
-    [Test]
-    public void Serializer_adds_generator_meta_element_if_DontIncludeGeneratorMetaElement_is_false()
-    {
-      // arrange
-      const string htmlContent = "<html><head></head><body></body></html>";
+            // act
+            string serializedHtmlContent =
+              _sgmlDomSerializer.SerializeDocument(xDocument, domSerializationParams);
 
-      var xDocument = _sgmlDomBuilder.BuildDocument(htmlContent);
+            // assert
+            AssertViewportMetaElementPresence(serializedHtmlContent, false);
+        }
 
-      var domSerializationParams =
-        new DomSerializationParams
+        [Test]
+        public void Serializer_adds_content_type_meta_element_if_DontIncludeContentTypeMetaElement_is_false()
         {
-          DontIncludeGeneratorMetaElement = false,
-        };
+            // arrange
+            const string htmlContent = "<html><head></head><body></body></html>";
 
-      // act
-      string serializedHtmlContent =
-        _sgmlDomSerializer.SerializeDocument(xDocument, domSerializationParams);
+            var xDocument = SgmlDomBuilder.BuildDocument(htmlContent);
 
-      // assert
-      AssertGeneratorMetaElementPresence(serializedHtmlContent, true);
-    }
+            var domSerializationParams =
+              new DomSerializationParams
+              {
+                  DontIncludeContentTypeMetaElement = false,
+              };
 
-    [Test]
-    public void Serializer_adds_content_type_meta_element_if_DontIncludeContentTypeMetaElement_is_false()
-    {
-      // arrange
-      const string htmlContent = "<html><head></head><body></body></html>";
+            // act
+            string serializedHtmlContent =
+              _sgmlDomSerializer.SerializeDocument(xDocument, domSerializationParams);
 
-      var xDocument = _sgmlDomBuilder.BuildDocument(htmlContent);
+            // assert
+            AssertContentTypeMetaElementPresence(serializedHtmlContent, false);
+        }
 
-      var domSerializationParams =
-        new DomSerializationParams
+        [Test]
+        public void Serializer_removes_existing_generator_meta_element()
         {
-          DontIncludeContentTypeMetaElement = false,
-        };
+            // arrange
+            const string htmlContent = "<html><head><meta name=\"generator\" value=\"WordPress\"</head><body></body></html>";
 
-      // act
-      string serializedHtmlContent =
-        _sgmlDomSerializer.SerializeDocument(xDocument, domSerializationParams);
+            var xDocument = SgmlDomBuilder.BuildDocument(htmlContent);
 
-      // assert
-      AssertContentTypeMetaElementPresence(serializedHtmlContent, true);
+            // act
+            string serializedHtmlContent = _sgmlDomSerializer.SerializeDocument(xDocument);
+
+            // assert
+            MyAssert.AssertSubstringCount(1, serializedHtmlContent, "<meta name=\"Generator\"");
+        }
+
+        [Test]
+        public void Serializer_removes_existing_content_type_meta_element()
+        {
+            // arrange
+            const string htmlContent = "<html><head><meta http-equiv=\"Content-Type\" value=\"UTF-8\"</head><body></body></html>";
+
+            var xDocument = SgmlDomBuilder.BuildDocument(htmlContent);
+
+            // act
+            string serializedHtmlContent = _sgmlDomSerializer.SerializeDocument(xDocument);
+
+            // assert
+            MyAssert.AssertSubstringCount(0, serializedHtmlContent, "<meta http-equiv=\"Content-Type\"");
+        }
+
+        #endregion
+
+        #region Private helper methods
+
+        private static void AssertMetaElementPresence(string htmlContent, string metaElementAttributeName, string metaElementName, bool presenceIsExpected)
+        {
+            bool containsCondition =
+              htmlContent.ToLower()
+                .Contains(
+                  string.Format("<meta {0}=\"{1}\"",
+                    metaElementAttributeName.ToLower(),
+                    metaElementName.ToLower()));
+
+            if (presenceIsExpected)
+            {
+                Assert.IsTrue(containsCondition);
+            }
+            else
+            {
+                Assert.IsFalse(containsCondition);
+            }
+        }
+
+        private static void AssertViewportMetaElementPresence(string htmlContent, bool presenceIsExpected)
+        {
+            AssertMetaElementPresence(htmlContent, "name", "viewport", presenceIsExpected);
+        }
+
+        private static void AssertHandheldFriendlyMetaElementPresence(string htmlContent, bool presenceIsExpected)
+        {
+            AssertMetaElementPresence(htmlContent, "name", "HandheldFriendly", presenceIsExpected);
+        }
+
+        private static void AssertGeneratorMetaElementPresence(string htmlContent, bool presenceIsExpected)
+        {
+            AssertMetaElementPresence(htmlContent, "name", "generator", presenceIsExpected);
+        }
+
+        private static void AssertContentTypeMetaElementPresence(string htmlContent, bool presenceIsExpected)
+        {
+            AssertMetaElementPresence(htmlContent, "http-equiv", "Content-Type", presenceIsExpected);
+        }
+
+        #endregion
     }
-
-    [Test]
-    public void Serializer_removes_existing_generator_meta_element()
-    {
-      // arrange
-      const string htmlContent = "<html><head><meta name=\"generator\" value=\"WordPress\"</head><body></body></html>";
-
-      var xDocument = _sgmlDomBuilder.BuildDocument(htmlContent);
-
-      // act
-      string serializedHtmlContent = _sgmlDomSerializer.SerializeDocument(xDocument);
-
-      // assert
-      MyAssert.AssertSubstringCount(1, serializedHtmlContent, "<meta name=\"Generator\"");
-    }
-
-    [Test]
-    public void Serializer_removes_existing_content_type_meta_element()
-    {
-      // arrange
-      const string htmlContent = "<html><head><meta http-equiv=\"Content-Type\" value=\"UTF-8\"</head><body></body></html>";
-
-      var xDocument = _sgmlDomBuilder.BuildDocument(htmlContent);
-
-      // act
-      string serializedHtmlContent = _sgmlDomSerializer.SerializeDocument(xDocument);
-
-      // assert
-      MyAssert.AssertSubstringCount(1, serializedHtmlContent, "<meta http-equiv=\"Content-Type\"");
-    }
-
-    #endregion
-
-    #region Private helper methods
-
-    private static void AssertMetaElementPresence(string htmlContent, string metaElementAttributeName, string metaElementName, bool presenceIsExpected)
-    {
-      bool containsCondition =
-        htmlContent.ToLower()
-          .Contains(
-            string.Format("<meta {0}=\"{1}\"",
-              metaElementAttributeName.ToLower(),
-              metaElementName.ToLower()));
-
-      if (presenceIsExpected)
-      {
-        Assert.IsTrue(containsCondition);
-      }
-      else
-      {
-        Assert.IsFalse(containsCondition);
-      }
-    }
-
-    private static void AssertViewportMetaElementPresence(string htmlContent, bool presenceIsExpected)
-    {
-      AssertMetaElementPresence(htmlContent, "name", "viewport", presenceIsExpected);
-    }
-
-    private static void AssertHandheldFriendlyMetaElementPresence(string htmlContent, bool presenceIsExpected)
-    {
-      AssertMetaElementPresence(htmlContent, "name", "HandheldFriendly", presenceIsExpected);
-    }
-
-    private static void AssertGeneratorMetaElementPresence(string htmlContent, bool presenceIsExpected)
-    {
-      AssertMetaElementPresence(htmlContent, "name", "generator", presenceIsExpected);
-    }
-
-    private static void AssertContentTypeMetaElementPresence(string htmlContent, bool presenceIsExpected)
-    {
-      AssertMetaElementPresence(htmlContent, "http-equiv", "Content-Type", presenceIsExpected);
-    }
-
-    #endregion
-  }
 }

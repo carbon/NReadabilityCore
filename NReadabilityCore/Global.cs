@@ -1,3 +1,3 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("NReadability.Tests")]
+[assembly: InternalsVisibleTo("Carbon.Readability.Tests")]

@@ -23,7 +23,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace NReadability
+namespace Carbon.Readability
 {
     public sealed class UrlFetcher : IUrlFetcher
     {

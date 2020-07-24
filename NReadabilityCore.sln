@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2026
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NReadabilityCore", "NReadabilityCore\NReadabilityCore.csproj", "{ABC989AF-A88D-43F2-8AB1-89C2A908CA0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carbon.Readability", "NReadabilityCore\Carbon.Readability.csproj", "{ABC989AF-A88D-43F2-8AB1-89C2A908CA0C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NReadability.Tests", "NReadability.Tests\NReadability.Tests.csproj", "{F70F67F2-724C-453F-98C4-7C4537B1B1B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carbon.Readability.Tests", "NReadability.Tests\Carbon.Readability.Tests.csproj", "{F70F67F2-724C-453F-98C4-7C4537B1B1B6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SgmlReader.NetCore", "SgmlReader.NetCore\SgmlReader.NetCore.csproj", "{0C4A210C-6B54-4135-A89D-A9E5DB6A1654}"
 EndProject

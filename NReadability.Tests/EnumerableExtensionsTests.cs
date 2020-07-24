@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 
-namespace NReadability.Tests
+namespace Carbon.Readability.Tests
 {
   [TestFixture]
   public class EnumerableExtensionsTests

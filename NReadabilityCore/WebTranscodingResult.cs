@@ -1,4 +1,4 @@
-namespace NReadability
+namespace Carbon.Readability
 {
     public sealed class WebTranscodingResult
     {
@@ -12,8 +12,8 @@ namespace NReadability
 
         public bool TitleExtracted { get; private set; }
 
-        public string ExtractedContent { get; set; }
+        public string Content { get; set; }
 
-        public string ExtractedTitle { get; set; }
+        public string? Title { get; set; }
     }
 }

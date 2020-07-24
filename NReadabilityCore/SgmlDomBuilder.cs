@@ -19,28 +19,27 @@
  */
 
 using System;
+using System.Buffers;
+using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
-using Sgml;
-using System.IO;
 
-namespace NReadability
+using Sgml;
+
+namespace Carbon.Readability
 {
     /// <summary>
     /// A class for constructing a DOM from HTML markup.
     /// </summary>
-    public class SgmlDomBuilder
+    public static class SgmlDomBuilder
     {
-        #region Public methods
-
         /// <summary>
         /// Constructs a DOM (System.Xml.Linq.XDocument) from HTML markup.
         /// </summary>
         /// <param name="htmlContent">HTML markup from which the DOM is to be constructed.</param>
         /// <returns>System.Linq.Xml.XDocument instance which is a DOM of the provided HTML markup.</returns>
-        public XDocument BuildDocument(string htmlContent)
+        public static XDocument BuildDocument(ReadOnlySpan<char> htmlContent)
         {
             if (htmlContent == null)
             {
@@ -58,11 +57,11 @@ namespace NReadability
 
             if (indexOfHtmlEnd != -1)
             {
-                int indexOfHtmlEndBracket = htmlContent.IndexOf('>', indexOfHtmlEnd);
+                int relativeIndexOfHtmlEndBracket = htmlContent.Slice(indexOfHtmlEnd).IndexOf('>');
 
-                if (indexOfHtmlEndBracket != -1)
+                if (relativeIndexOfHtmlEndBracket != -1)
                 {
-                    htmlContent = htmlContent.Substring(0, indexOfHtmlEndBracket + 1);
+                    htmlContent = htmlContent.Slice(0, indexOfHtmlEnd + relativeIndexOfHtmlEndBracket + 1);
                 }
             }
 
@@ -90,7 +89,7 @@ namespace NReadability
             return document;
         }
 
-        private static XDocument LoadDocument(string htmlContent)
+        private static XDocument LoadDocument(ReadOnlySpan<char> htmlContent)
         {
             using var sgmlReader = new SgmlReader
             {
@@ -99,15 +98,24 @@ namespace NReadability
                 WhitespaceHandling = WhitespaceHandling.None
             };
 
-            using var sr = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(htmlContent)));
+            var buffer = ArrayPool<byte>.Shared.Rent(htmlContent.Length * 2);
 
-            sgmlReader.InputStream = sr;
+            try
+            {
+                int byteCount = Encoding.UTF8.GetBytes(htmlContent, buffer);
 
-            var document = XDocument.Load(sgmlReader);
+                using var sr = new StreamReader(new MemoryStream(buffer, 0, byteCount));
 
-            return document;
+                sgmlReader.InputStream = sr;
+
+                var document = XDocument.Load(sgmlReader);
+
+                return document;
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
         }
-
-        #endregion
     }
 }

@@ -21,9 +21,9 @@
 using System;
 using System.Xml.Linq;
 
-namespace NReadability
+namespace Carbon.Readability
 {
-    public class ElementsTraverser
+    public sealed class ElementsTraverser
     {
         private readonly Action<XElement> _elementVisitor;
 

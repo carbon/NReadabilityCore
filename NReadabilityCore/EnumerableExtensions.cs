@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NReadability
+namespace Carbon.Readability
 {
     public static class EnumerableExtensions
     {
         /// <summary>
         /// Returns the only one element in the sequence or default(T) if either the sequence doesn't contain any elements or it contains more than one element.
         /// </summary>
-        public static T SingleOrNone<T>(this IEnumerable<T> enumerable)
+        public static T? SingleOrNone<T>(this IEnumerable<T> enumerable)
           where T : class
         {
             // ReSharper disable PossibleMultipleEnumeration

@@ -22,7 +22,7 @@ using System;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace NReadability
+namespace Carbon.Readability
 {
     /// <summary>
     /// A class for serializing a DOM to string.
@@ -67,10 +67,6 @@ namespace NReadability
 
             string result = document.ToString(domSerializationParams.PrettyPrint ? SaveOptions.None : SaveOptions.DisableFormatting);
 
-            if (!domSerializationParams.DontIncludeDocTypeMetaElement)
-            {
-                result = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\r\n\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n" + result;
-            }
 
             return result;
         }
@@ -108,15 +104,6 @@ namespace NReadability
                 {
                     metaContentTypeElement.Remove();
                 }
-
-                // add <meta name="http-equiv" ... /> element
-                metaContentTypeElement =
-                  new XElement(
-                    XName.Get("meta", headElement.Name != null ? (headElement.Name.NamespaceName ?? "") : ""),
-                    new XAttribute("http-equiv", "Content-Type"),
-                    new XAttribute("content", "text/html; charset=utf-8"));
-
-                headElement.AddFirst(metaContentTypeElement);
             }
         }
 
@@ -133,27 +120,7 @@ namespace NReadability
                 metaViewportElement.Remove();
             }
 
-            XElement metaHandheldFriendlyElement =
-              (from metaElement in headElement.GetChildrenByTagName("meta")
-               where "HandheldFriendly".Equals(metaElement.GetAttributeValue("name", ""), StringComparison.OrdinalIgnoreCase)
-               select metaElement).FirstOrDefault();
-
-            // remove meta 'HandheldFriendly' element if present
-            if (metaHandheldFriendlyElement != null)
-            {
-                metaHandheldFriendlyElement.Remove();
-            }
-
-            if (!domSerializationParams.DontIncludeMobileSpecificMetaElements)
-            {
-                // add <meta name="HandheldFriendly" ... /> element
-                metaHandheldFriendlyElement = new XElement(
-                  XName.Get("meta", headElement.Name != null ? (headElement.Name.NamespaceName ?? "") : ""),
-                  new XAttribute("name", "HandheldFriendly"),
-                  new XAttribute("content", "true"));
-
-                headElement.AddFirst(metaHandheldFriendlyElement);
-            }
+        
         }
 
         private static void ProcessMetaGeneratorElement(XElement headElement, DomSerializationParams domSerializationParams)
@@ -170,12 +137,6 @@ namespace NReadability
                 {
                     metaGeneratorElement.Remove();
                 }
-
-                // add <meta name="Generator" ... /> element
-                metaGeneratorElement = new XElement(
-                  XName.Get("meta", headElement.Name != null ? (headElement.Name.NamespaceName ?? "") : ""),
-                  new XAttribute("name", "Generator"),
-                  new XAttribute("content", Consts.NReadabilityFullName));
 
                 headElement.AddFirst(metaGeneratorElement);
             }
