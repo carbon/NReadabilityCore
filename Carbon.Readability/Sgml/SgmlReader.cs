@@ -26,7 +26,7 @@ namespace Sgml
     /// to lower case or upper case tags.  "None" means that the case is left
     /// alone, except that end tags will be folded to match the start tags.
     /// </summary>
-    public enum CaseFolding
+    internal enum CaseFolding
     {
         /// <summary>
         /// Do not convert case, except for converting end tags to match start tags.
@@ -318,7 +318,7 @@ namespace Sgml
     /// SgmlReader is an XmlReader API over any SGML document (including built in 
     /// support for HTML).  
     /// </summary>
-    public class SgmlReader : XmlReader
+    internal class SgmlReader : XmlReader
     {
         /// <summary>
         /// The value returned when a namespace is queried and none has been specified.
@@ -555,32 +555,7 @@ namespace Sgml
             this.m_baseUri = new Uri(uri);
         }
 
-        /// <summary>
-        /// Specify the location of the input SGML document as a URL.
-        /// </summary>
-        public string Href
-        {
-            get
-            {
-                return this.m_href;
-            }
-            set
-            {
-                this.m_href = value;
-                Init();
-                if (this.m_baseUri == null)
-                {
-                    if (this.m_href.IndexOf("://") > 0)
-                    {
-                        this.m_baseUri = new Uri(this.m_href);
-                    }
-                    else
-                    {
-                        this.m_baseUri = new Uri("file:///" + Directory.GetCurrentDirectory() + "//");
-                    }
-                }
-            }
-        }
+      
 
         /// <summary>
         /// Whether to strip out the DOCTYPE tag from the output (default true)
@@ -1334,11 +1309,7 @@ namespace Sgml
         {
             LazyLoadDtd(this.m_baseUri);
 
-            if (this.Href != null)
-            {
-                this.m_current = new Entity("#document", null, this.m_href, this.m_proxy);
-            }
-            else if (this.m_inputStream != null)
+            if (this.m_inputStream != null)
             {
                 this.m_current = new Entity("#document", null, this.m_inputStream, this.m_proxy);
             }
@@ -1948,7 +1919,7 @@ namespace Sgml
         private bool ParsePI()
         {
             string name = this.m_current.ScanToken(this.m_sb, SgmlReader.piterm, false);
-            string? value = null;
+            string? value;
             if (this.m_current.Lastchar != '?')
             {
                 // Notice this is not "?>".  This is because Office generates bogus PI's that end with "/>".

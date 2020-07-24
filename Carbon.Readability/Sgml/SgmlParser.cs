@@ -2195,7 +2195,7 @@ namespace Sgml
         {
             if (ch == '%')
             {
-                Entity e = ParseParameterEntity(SgmlDtd.WhiteSpace);
+                Entity e = ParseParameterEntity(WhiteSpace);
                 PushEntity(this.m_current.ResolvedUri, e);
                 ParseAttDefault(this.m_current.Lastchar, attdef);
                 PopEntity(); // bugbug - are we at the end of the entity?
@@ -2207,7 +2207,7 @@ namespace Sgml
             if (ch == '#')
             {
                 this.m_current.ReadChar();
-                string token = this.m_current.ScanToken(this.m_sb, SgmlDtd.WhiteSpace, true);
+                string token = this.m_current.ScanToken(this.m_sb, WhiteSpace, true);
                 hasdef = attdef.SetPresence(token);
                 ch = this.m_current.SkipWhitespace();
             }

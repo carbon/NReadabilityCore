@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Authors>f14shm4n iamcarbon</Authors>
+    <Authors>f14shm4n iamcarbon marek-stoj</Authors>
     <Description>A modernized fork of https://github.com/marek-stoj/NReadability</Description>
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>

@@ -199,6 +199,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Carbon.Readability\Carbon.Readability.csproj" />
     <ProjectReference Include="..\NReadabilityCore\Carbon.Readability.csproj" />
   </ItemGroup>
 

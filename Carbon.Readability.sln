@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carbon.Readability", "Carbon.Readability\Carbon.Readability.csproj", "{BFB58E04-E697-4666-9694-6ECA0B5BB1DB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Carbon.Readability.Tests", "Carbon.Readability.Tests\Carbon.Readability.Tests.csproj", "{2ABC078A-8C3F-4810-97F4-99A66A0B26EC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BFB58E04-E697-4666-9694-6ECA0B5BB1DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFB58E04-E697-4666-9694-6ECA0B5BB1DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFB58E04-E697-4666-9694-6ECA0B5BB1DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFB58E04-E697-4666-9694-6ECA0B5BB1DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ABC078A-8C3F-4810-97F4-99A66A0B26EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ABC078A-8C3F-4810-97F4-99A66A0B26EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ABC078A-8C3F-4810-97F4-99A66A0B26EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ABC078A-8C3F-4810-97F4-99A66A0B26EC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {222A93EC-7E9B-4B5C-975F-14E47419FC06}
+	EndGlobalSection
+EndGlobal
